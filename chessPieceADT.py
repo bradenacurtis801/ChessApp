@@ -2,20 +2,19 @@ from abc import ABC, abstractmethod
 
 class ChessPiece(ABC):
 
-    def __init__(self, team):
-        self.team = team
-        self.move_vector = 2*[]
-        self.position = 2*[]
+    def __init__(self):
+        self.move_vector = [None,None]
+        self.position = [None,None]
      
-    @abstractmethod   
+    # @abstractmethod   
     def getPos(self):
         pass
     
-    @abstractmethod
+    # @abstractmethod
     def setPos(self, row: int, col: int):
         pass
     
-    @abstractmethod
+    # @abstractmethod
     def getMoveVector(self):
         pass
         
