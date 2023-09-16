@@ -5,6 +5,7 @@ class ChessPiece(ABC):
     def __init__(self):
         self.move_vector = [None,None]
         self.position = [None,None]
+        self.points = None
      
     # @abstractmethod   
     def getPos(self):

@@ -4,7 +4,7 @@ class Pawn(ChessPiece):
     def __init__(self,team):
         self.name = 'p'
         if team == 1: self.name = self.name.upper()
-        self.move_vector = [None,None]
+        self.move_vector = [1,0]
         self.position = [None,None]
 
 class Rook(ChessPiece):

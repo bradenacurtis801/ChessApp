@@ -23,6 +23,9 @@ class ChessBoard:
              for col in range(8):
                 if self.board[row][col]:
                     self.board[row][col].position = (row, col)
+                    
+                    
+        self.display()
 
     def display(self):
         """Display the current state of the chessboard."""
@@ -81,14 +84,21 @@ class ChessBoard:
         
         # TODO: Use the coordinates to move the piece from source to destination in self.board
         # ...
-        self.isValidMove(source_coord,destination_coord)
+        if self.isValidMove(source_coord,destination_coord):
+            pass
+            #TODO move chest peice
+        else:
+            print("Move was invalid, try again.")
+            player1 = not player1 #prevents current player from changing
+            self.run()
         
     def isValidMove(self,src_cord,dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
         # TODO
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
-        pass
+        if srcObj:
+            pass
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
