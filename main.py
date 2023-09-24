@@ -8,6 +8,7 @@ class ChessBoard:
     def __init__(self):
         """Initialize the chessboard with the default setup."""
         # Standard starting positions for a chess game.
+        #Board is upside-down because the first row is row zero.
         self.board = [
             [Rook(0), Knight(0), Bishop(0), Queen(0), King(0), Bishop(0), Knight(0), Rook(0)],
             [Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0)],
@@ -29,11 +30,11 @@ class ChessBoard:
 
     def display(self):
         """Display the current state of the chessboard."""
-        for i, row in enumerate(self.board, start=1):
+        for i, row in enumerate(reversed(self.board)):
             display_row = []
             for piece in row:
                 display_row.append(piece.name if piece else ' ')
-            print(f"{9-i} | " + ' | '.join(display_row) + ' |')
+            print(f"{8-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
@@ -78,33 +79,29 @@ class ChessBoard:
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
+        #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
-        
-        # TODO: Use the coordinates to move the piece from source to destination in self.board
-        # ...
-        if self.isValidMove(source_coord,destination_coord):
-            pass
-            #TODO move chest peice
+        #get the object at the source coordinates
+        srcObj = self.board[source_coord[0]][source_coord[1]]
+        #check if object exists and if the move is valid
+        if(srcObj != None and srcObj.validateMove(destination_coord, self.board) == True):
+            #move object
+            srcObj.setPos(destination_coord)
+            self.board[destination_coord[0]][destination_coord[1]] = self.board[source_coord[0]][source_coord[1]]
+            self.board[source_coord[0]][source_coord[1]] = None
         else:
             print("Move was invalid, try again.")
-            player1 = not player1 #prevents current player from changing
+            #player1 = not player1 #prevents current player from changing
             self.run()
-        
-    def isValidMove(self,src_cord,dest_cord):
-        """Check if the move from src_cord to dest_cord is valid according to chess rules."""
-        # TODO
-        srcObj = self.board[src_cord[0]][src_cord[1]]
-        destObj = self.board[dest_cord[0]][dest_cord[1]]
-        if srcObj:
-            pass
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        col = col_map[notation[0].upper()]
-        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+        col = int(col_map[notation[0].upper()])
+        row = int(notation[1]) - 1  # 8 - row number to get 0-indexed row
+        #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
