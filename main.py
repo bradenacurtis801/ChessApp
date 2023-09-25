@@ -4,6 +4,16 @@ import pickle
 import re
 
 class ChessBoard:
+    #Used to print piece captured
+    piece_names = {
+    'k': 'King',
+    'q': 'Queen',
+    'r': 'Rook',
+    'b': 'Bishop',
+    'n': 'Knight',
+    'p': 'Pawn'
+}
+
     """Represents a chessboard and handles game operations such as moves and display."""
     def __init__(self):
         """Initialize the chessboard with the default setup."""
@@ -11,13 +21,13 @@ class ChessBoard:
         self.player1 = True
         self.board = [
             [Rook(0), Knight(0), Bishop(0), Queen(0), King(0), Bishop(0), Knight(0), Rook(0)],
-            [Pawn(0), Pawn(0), Pawn(0), None, Pawn(0), Pawn(0), Pawn(0), Pawn(0)],
+            [Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0)],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
-            [Pawn(1), Pawn(1), Pawn(1), None, Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
-            [Rook(1), Knight(1), Bishop(1), Queen(1), King(1), Bishop(1), Knight(1), Rook(1)]
+            [Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
+            [Rook(1), Knight(1), Bishop(1), Queen(0), King(1), Bishop(1), Knight(1), Rook(1)]
         ]
         # Setting the initial positions of the pieces
         for row in range(8):
@@ -130,7 +140,7 @@ class ChessBoard:
 
         #If there's a piece at the source coordinat, call its isValidMove
         if srcObj:
-            return srcObj.moveValidation(dest_cord, self.board)
+            return srcObj.validateMove(dest_cord, self.board)
         return False
         #if srcObj:
             #pass
@@ -149,7 +159,20 @@ class ChessBoard:
       
         # If there's a piece at the destination square, it's captured. 
         if captured_piece:
-            print(f"{captured_piece.name} was captured!")
+            # Use the dictionary to get the full name of the captured piece.
+            captured_name = ChessBoard.piece_names[captured_piece.name.lower()]
+            print(f"{captured_name} was captured!")
+
+            # Check if the captured piece is a king
+            if captured_piece.name.lower() == 'k':
+                winning_player = 1 if self.player1 else 2
+                print(f"Player {winning_player} wins! The king has been captured.")
+                # Here you can either exit the game or offer to restart
+                choice = input("Do you want to play again? (yes/no): ").strip().lower()
+                if choice == 'yes':
+                    self.reset()
+                else:
+                    self.quit()
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""

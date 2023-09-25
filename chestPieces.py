@@ -1,11 +1,50 @@
 from chessPieceADT import ChessPiece
 
 class Pawn(ChessPiece):
-    def __init__(self,team):
+    def __init__(self, team):
         self.name = 'p'
         if team == 1: self.name = self.name.upper()
-        self.move_vector = [1,0]
-        self.position = [None,None]
+        self.position = [None, None]
+        self.first_move = True
+
+    def validateMove(self, dest_cord, board):
+        # generate possible moves
+        row = self.position[0]
+        col = self.position[1]
+        moves = []
+
+        if self.name.isupper():  # Team 1 (White)
+            # Standard move forward
+            if board[row - 1][col] == None:
+                moves.append((row - 1, col))
+            # First move: can move two spaces forward
+            if self.first_move and board[row - 2][col] == None:
+                moves.append((row - 2, col))
+            # Capture diagonally left
+            if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
+                moves.append((row - 1, col - 1))
+            # Capture diagonally right
+            if col < 7 and board[row - 1][col + 1] and board[row - 1][col + 1].name.islower():
+                moves.append((row - 1, col + 1))
+
+        else:  # Team 2 (Black)
+            # Standard move forward
+            if board[row + 1][col] == None:
+                moves.append((row + 1, col))
+            # First move: can move two spaces forward
+            if self.first_move and board[row + 2][col] == None:
+                moves.append((row + 2, col))
+            # Capture diagonally left
+            if col > 0 and board[row + 1][col - 1] and board[row + 1][col - 1].name.isupper():
+                moves.append((row + 1, col - 1))
+            # Capture diagonally right
+            if col < 7 and board[row + 1][col + 1] and board[row + 1][col + 1].name.isupper():
+                moves.append((row + 1, col + 1))
+
+        if dest_cord in moves:
+            self.first_move = False  # After a move, set first_move to False
+            return True
+        return False
 
 class Rook(ChessPiece):
     def __init__(self,team):
@@ -29,7 +68,7 @@ class Queen(ChessPiece):
         self.position = 2*[]
     
 
-    def moveValidation(self, dest: tuple, board) -> bool:
+    def validateMove(self, dest: tuple, board) -> bool:
         dest_row, dest_col = dest
         # Check for horizontal, vertical, or diagonal movement
         row_diff = abs(dest_row - self.position[0])
@@ -73,11 +112,34 @@ class Queen(ChessPiece):
 
 
 class King(ChessPiece):
-    def __init__(self,team):
+    def __init__(self, team):
         self.name = 'k'
         if team == 1: self.name = self.name.upper()
-        self.move_vector = 2*[]
-        self.position = 2*[]
+        self.position = []
+    
+    #a King can move one square in any direction
+    def validateMove(self, dest_cord, board) -> bool:
+        dest_row, dest_col = dest_cord
+        # Generate possible moves
+        row = self.position[0]
+        col = self.position[1]
+        moves = []
+        # Check all squares around king (including the king)
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                try:
+                    srcObj = board[row + i][col + j]
+                    if srcObj == None:
+                        moves.append((row + i, col + j))
+                    else:
+                        if (self.name.isupper() and srcObj.name.islower()) or (self.name.islower() and srcObj.name.isupper()):
+                            moves.append((row + i, col + j))
+                except IndexError:
+                    pass
+        # Check if the destination is one of the valid moves
+        if dest_cord in moves:
+            return True
+        return False
 
 class Bishop(ChessPiece):
     def __init__(self,team):
@@ -86,7 +148,7 @@ class Bishop(ChessPiece):
         self.move_vector = 2*[]
         self.position = 2*[]
 
-    def moveValidation(self, dest: tuple, board) -> bool:
+    def validateMove(self, dest: tuple, board) -> bool:
         dest_row, dest_col = dest
         # Check for diagonal movement
         row_diff = abs(dest_row - self.position[0])
