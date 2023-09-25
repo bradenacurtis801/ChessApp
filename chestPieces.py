@@ -140,36 +140,7 @@ class King(ChessPiece):
         if dest_cord in moves:
             return True
         return False
-
-    def getPos(self):
-        return self.position
     
-    def setPos(self, newPos):
-        self.position = newPos
-    
-    #a King can move one square in any direction
-    def validateMove(self, dest_cord, board):
-        #generate possible moves
-        row = self.position[0]
-        col = self.position[1]
-        moves = []
-        #check all squares around king (including the king)
-        for i in range(-1,2):
-            for j in range(-1,2):
-                try:
-                    srcObj = board[row+i][col+j]
-                    if srcObj == None:
-                        moves.append((row+i,col+j))
-                    else:
-                        if srcObj.team != self.team:
-                            moves.append((row+i, col+j))
-                except IndexError:
-                    pass
-        #check if the destination is one of the valid moves
-        if dest_cord in moves:
-            return True
-        return False
-
 class Bishop(ChessPiece):
     def __init__(self,team):
         self.name = 'b'

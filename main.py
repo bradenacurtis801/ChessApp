@@ -27,7 +27,7 @@ class ChessBoard:
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
-            [Rook(1), Knight(1), Bishop(1), Queen(0), King(1), Bishop(1), Knight(1), Rook(1)]
+            [Rook(1), Knight(1), Bishop(1), Queen(1), King(1), Bishop(1), Knight(1), Rook(1)]
         ]
         # Setting the initial positions of the pieces
         for row in range(8):
@@ -66,15 +66,9 @@ class ChessBoard:
             
     def run(self):
         """Main game loop, handles input from the players and game progression."""
-        player1 = True
         while True:
             player = 1 if self.player1 else 2
             resp = input(f'Player {player} turn:')
-            #if player1:
-            #    player = 1
-            #else:
-            #    player = 2
-            #resp = input(f'Player {player} turn:')
 
             if resp == "quit":
                 self.quit()
@@ -87,8 +81,6 @@ class ChessBoard:
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
-            # This changes the player move after the current player makes a move
-            #self.player1 = not self.player1
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
@@ -104,8 +96,6 @@ class ChessBoard:
         else:
             print("Move was invalid, try again.")
             return False
-            #self.player1 = not self.player1 #prevents current player from changing
-            #self.run()
         
         
     def isValidMove(self,src_cord,dest_cord):
@@ -137,13 +127,11 @@ class ChessBoard:
                 print("You cannot capture your own piece!")
                 return False
 
-
         #If there's a piece at the source coordinat, call its isValidMove
         if srcObj:
             return srcObj.validateMove(dest_cord, self.board)
         return False
-        #if srcObj:
-            #pass
+
     
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
