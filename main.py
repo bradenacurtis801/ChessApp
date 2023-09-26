@@ -1,4 +1,5 @@
 from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+from chessPieceADT import ChessPiece
 import sys,os
 import pickle
 import re
@@ -82,7 +83,7 @@ class ChessBoard:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
             
-    def handleMove(self, move):
+    def handleMove(self, move: str):
         """Parse the move input and handles the move on the board."""
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
@@ -131,13 +132,13 @@ class ChessBoard:
     
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
-        piece_to_move = self.board[src_cord[0]][src_cord[1]]
-        captured_piece = self.board[dest_cord[0]][dest_cord[1]]
+        #Setting to type ChessPiece to remove 'any' type like 'piece_to_move.setPos' ...
+        piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
+        captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
         
         # Update the board
         self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
         self.board[src_cord[0]][src_cord[1]] = None
-        
         # Update the position attribute of the moved piece 
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
       
@@ -158,7 +159,7 @@ class ChessBoard:
                 else:
                     self.quit()
     
-    def convert_to_coord(self, notation):
+    def convert_to_coord(self, notation: str):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = col_map[notation[0].upper()]
