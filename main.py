@@ -27,7 +27,7 @@ class ChessBoard:
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
-            [Rook(1), Knight(1), Bishop(1), Queen(0), King(1), Bishop(1), Knight(1), Rook(1)]
+            [Rook(1), Knight(1), Bishop(1), Queen(1), King(1), Bishop(1), Knight(1), Rook(1)]
         ]
         # Setting the initial positions of the pieces
         for row in range(8):
