@@ -110,11 +110,7 @@ class ChessBoard:
             return False
 
         # Check if the piece being moved belongs to the current player
-        if self.player1 and srcObj.name.isupper():
-            pass
-        elif not self.player1 and srcObj.name.islower():
-            pass
-        else:
+        if ((self.player1 == True and srcObj.name.upper()) or self.player1 == False and srcObj.name.islower()):
             print("You can only move your own pieces!")
             return False
         
