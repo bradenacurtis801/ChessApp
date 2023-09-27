@@ -169,3 +169,4 @@ class Bishop(ChessPiece):
             row += row_step
             col += col_step
         return True
+

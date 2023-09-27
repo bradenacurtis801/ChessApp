@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 class ChessPiece(ABC):
 
     def __init__(self):
-        self.move_vector = [None,None]
-        self.position = [None,None]
+        self.position = (None,None)
         self.points = None
+        self.team = 0
      
     # @abstractmethod   
     def getPos(self):
@@ -14,6 +14,7 @@ class ChessPiece(ABC):
     # @abstractmethod
     def setPos(self, row: int, col: int):
         self.position = [row, col]
+
     
     # @abstractmethod
     def getMoveVector(self):
@@ -26,6 +27,3 @@ class ChessPiece(ABC):
         Return True if valid, otherwise return False.
         """
     #    pass
-        
-
-        

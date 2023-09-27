@@ -41,11 +41,11 @@ class ChessBoard:
 
     def display(self):
         """Display the current state of the chessboard."""
-        for i, row in enumerate(self.board, start=1):
+        for i, row in enumerate(reversed(self.board)):
             display_row = []
             for piece in row:
                 display_row.append(piece.name if piece else ' ')
-            print(f"{9-i} | " + ' | '.join(display_row) + ' |')
+            print(f"{8-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
@@ -68,23 +68,28 @@ class ChessBoard:
     def run(self):
         """Main game loop, handles input from the players and game progression."""
         while True:
-            player = 1 if self.player1 else 2
-            resp = input(f'Player {player} turn:')
+            if self.player1:
+                player = 'White'
+            else:
+                player = 'Black'
+            resp = input(f'{player}\'s move:')
 
             if resp == "quit":
                 self.quit()
             elif resp == "save":
                 self.save()
             elif self.validateInput(resp):
+
                 if self.handleMove(resp):  # Only toggle player if handleMove returns True
                     self.display()
-                    self.player1 = not self.player1
+                    self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
             
     def handleMove(self, move: str):
         """Parse the move input and handles the move on the board."""
+        #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
@@ -162,8 +167,9 @@ class ChessBoard:
     def convert_to_coord(self, notation: str):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        col = col_map[notation[0].upper()]
-        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+        col = int(col_map[notation[0].upper()])
+        row = int(notation[1]) - 1  # 8 - row number to get 0-indexed row
+        #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
@@ -201,9 +207,7 @@ class ChessBoard:
         self.__init__()
         self.run()
 
-
             
-
 if __name__ == "__main__":
     print("Welcome to Chess!")
     choice = input("Do you want to load a saved game? (yes/no): ").strip().lower()
