@@ -68,31 +68,38 @@ class ChessBoard:
     def run(self):
         """Main game loop, handles input from the players and game progression."""
         while True:
-            player = 1 if self.player1 else 2
-            resp = input(f'Player {player} turn:')
+            if self.player1:
+                player = 'White'
+            else:
+                player = 'Black'
+            resp = input(f'{player}\'s move:')
 
             if resp == "quit":
                 self.quit()
             elif resp == "save":
                 self.save()
             elif self.validateInput(resp):
-                if self.handleMove(resp):  # Only toggle player if handleMove returns True
+                if self.handleMove(resp):
                     self.display()
-                    self.player1 = not self.player1
+                    self.player1 = not self.player1  # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
             
-    def handleMove(self, move: str):
+    def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
+        #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
-        
-        # TODO: Use the coordinates to move the piece from source to destination in self.board
-        # ...
-        if self.isValidMove(source_coord,destination_coord):
-            self.movePiece(source_coord, destination_coord)
+        #get the object at the source coordinates
+        srcObj = self.board[source_coord[0]][source_coord[1]]
+        #check if object exists and if the move is valid
+        if(srcObj != None and srcObj.validateMove(destination_coord, self.board) == True):
+            #move object
+            srcObj.setPos(destination_coord)
+            self.board[destination_coord[0]][destination_coord[1]] = self.board[source_coord[0]][source_coord[1]]
+            self.board[source_coord[0]][source_coord[1]] = None
             return True
         else:
             print("Move was invalid, try again.")
@@ -159,11 +166,12 @@ class ChessBoard:
                 else:
                     self.quit()
     
-    def convert_to_coord(self, notation: str):
+    def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        col = col_map[notation[0].upper()]
-        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+        col = int(col_map[notation[0].upper()])
+        row = int(notation[1]) - 1  # 8 - row number to get 0-indexed row
+        #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
