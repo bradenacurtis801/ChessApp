@@ -209,9 +209,7 @@ class ChessBoard:
         self.__init__()
         self.run()
 
-
             
-
 if __name__ == "__main__":
     print("Welcome to Chess!")
     choice = input("Do you want to load a saved game? (yes/no): ").strip().lower()
