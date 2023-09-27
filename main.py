@@ -79,27 +79,25 @@ class ChessBoard:
             elif resp == "save":
                 self.save()
             elif self.validateInput(resp):
-                if self.handleMove(resp):
+
+                if self.handleMove(resp):  # Only toggle player if handleMove returns True
                     self.display()
-                    self.player1 = not self.player1  # This changes the player move after the current player makes a move
+                    self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
             
-    def handleMove(self, move):
+    def handleMove(self, move: str):
         """Parse the move input and handles the move on the board."""
         #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
-        #get the object at the source coordinates
-        srcObj = self.board[source_coord[0]][source_coord[1]]
-        #check if object exists and if the move is valid
-        if(srcObj != None and srcObj.validateMove(destination_coord, self.board) == True):
-            #move object
-            srcObj.setPos(destination_coord)
-            self.board[destination_coord[0]][destination_coord[1]] = self.board[source_coord[0]][source_coord[1]]
-            self.board[source_coord[0]][source_coord[1]] = None
+        
+        # TODO: Use the coordinates to move the piece from source to destination in self.board
+        # ...
+        if self.isValidMove(source_coord,destination_coord):
+            self.movePiece(source_coord, destination_coord)
             return True
         else:
             print("Move was invalid, try again.")
@@ -166,7 +164,7 @@ class ChessBoard:
                 else:
                     self.quit()
     
-    def convert_to_coord(self, notation):
+    def convert_to_coord(self, notation: str):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = int(col_map[notation[0].upper()])

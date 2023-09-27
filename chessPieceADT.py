@@ -9,15 +9,21 @@ class ChessPiece(ABC):
      
     # @abstractmethod   
     def getPos(self):
-        pass
+        return self.position
     
     # @abstractmethod
-    def setPos(self, pos):
-        pass
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
+
     
     # @abstractmethod
     def getMoveVector(self):
         pass
-    
-    def validateMove(self, dest_cord, board):
-        pass
+
+    # @abstractmethod
+    #def isValidMove(self, dest_row: int, dest_col: int) -> bool:
+        """
+        Check if moving to the given destination row and column is valid for this piece.
+        Return True if valid, otherwise return False.
+        """
+    #    pass
