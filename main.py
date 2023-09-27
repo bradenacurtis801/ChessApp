@@ -41,11 +41,11 @@ class ChessBoard:
 
     def display(self):
         """Display the current state of the chessboard."""
-        for i, row in enumerate(self.board, start=1):
+        for i, row in enumerate(reversed(self.board)):
             display_row = []
             for piece in row:
                 display_row.append(piece.name if piece else ' ')
-            print(f"{9-i} | " + ' | '.join(display_row) + ' |')
+            print(f"{8-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
