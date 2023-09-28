@@ -1,48 +1,36 @@
 from chessPieceADT import ChessPiece
 
 class Pawn(ChessPiece):
-    def __init__(self, team):
+    def __init__(self,team):
         self.name = 'p'
-        if team == 1: self.name = self.name.upper()
-        self.position = [None, None]
-        self.first_move = True
-
+        self.team = team
+        if self.team == 0: self.name = self.name.upper()
+        self.position = []
+        
+    def getPos(self):
+        return self.position
+    
+    def setPos(self, newPos):
+        self.position = newPos
+        
     def validateMove(self, dest_cord, board):
-        # generate possible moves
+        print("pawn validatemove entered!")
+        #generate possible moves
         row = self.position[0]
         col = self.position[1]
         moves = []
-
-        if self.name.isupper():  # Team 1 (White)
-            # Standard move forward
-            if board[row - 1][col] == None:
-                moves.append((row - 1, col))
-            # First move: can move two spaces forward
-            if self.first_move and board[row - 2][col] == None:
-                moves.append((row - 2, col))
-            # Capture diagonally left
-            if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
-                moves.append((row - 1, col - 1))
-            # Capture diagonally right
-            if col < 7 and board[row - 1][col + 1] and board[row - 1][col + 1].name.islower():
-                moves.append((row - 1, col + 1))
-
-        else:  # Team 2 (Black)
-            # Standard move forward
-            if board[row + 1][col] == None:
-                moves.append((row + 1, col))
-            # First move: can move two spaces forward
-            if self.first_move and board[row + 2][col] == None:
-                moves.append((row + 2, col))
-            # Capture diagonally left
-            if col > 0 and board[row + 1][col - 1] and board[row + 1][col - 1].name.isupper():
-                moves.append((row + 1, col - 1))
-            # Capture diagonally right
-            if col < 7 and board[row + 1][col + 1] and board[row + 1][col + 1].name.isupper():
-                moves.append((row + 1, col + 1))
-
+        print(self.team)
+        if self.team == 0:
+            srcObj = board[row+1][col]
+            if srcObj == None:
+                moves.append((row+1, col))
+            #TODO add checking for front corners and for out of bounds
+                srcObj2 = board[row+2][col]
+                if row == 1 and srcObj2 == None:
+                    moves.append((row+2,col))
+        #TODO add check for opposite side pawn
+        print(dest_cord)
         if dest_cord in moves:
-            self.first_move = False  # After a move, set first_move to False
             return True
         return False
 
