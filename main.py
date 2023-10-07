@@ -175,6 +175,7 @@ class ChessBoard:
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = col_map[notation[0].upper()]
         row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+         #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
