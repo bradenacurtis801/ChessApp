@@ -19,13 +19,7 @@ class ChessPiece(ABC):
     def getMoveVector(self):
         pass
 
-    # @abstractmethod
-    #def isValidMove(self, dest_row: int, dest_col: int) -> bool:
-        """
-        Check if moving to the given destination row and column is valid for this piece.
-        Return True if valid, otherwise return False.
-        """
-    #    pass
+ 
         
 
         

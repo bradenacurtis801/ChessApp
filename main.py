@@ -1,4 +1,5 @@
 from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+from chessPieceADT import ChessPiece
 import sys,os
 import pickle
 import re
@@ -66,29 +67,24 @@ class ChessBoard:
             
     def run(self):
         """Main game loop, handles input from the players and game progression."""
-        player1 = True
         while True:
-            player = 1 if self.player1 else 2
-            resp = input(f'Player {player} turn:')
-            #if player1:
-            #    player = 1
-            #else:
-            #    player = 2
-            #resp = input(f'Player {player} turn:')
+            if self.player1:
+                player = 'White'
+            else:
+                player = 'Black'
+            resp = input(f'{player}\'s move:')
 
             if resp == "quit":
                 self.quit()
             elif resp == "save":
                 self.save()
             elif self.validateInput(resp):
+
                 if self.handleMove(resp):  # Only toggle player if handleMove returns True
                     self.display()
-                    self.player1 = not self.player1
+                    self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
-
-            # This changes the player move after the current player makes a move
-            #self.player1 = not self.player1
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
@@ -110,7 +106,7 @@ class ChessBoard:
         
     def isValidMove(self,src_cord,dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
-        # TODO
+ 
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
 
@@ -147,8 +143,8 @@ class ChessBoard:
     
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
-        piece_to_move = self.board[src_cord[0]][src_cord[1]]
-        captured_piece = self.board[dest_cord[0]][dest_cord[1]]
+        piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
+        captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
         
         # Update the board
         self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
