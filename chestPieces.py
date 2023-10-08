@@ -1,36 +1,48 @@
 from chessPieceADT import ChessPiece
 
 class Pawn(ChessPiece):
-    def __init__(self,team):
+    def __init__(self, team):
         self.name = 'p'
-        self.team = team
-        if self.team == 0: self.name = self.name.upper()
-        self.position = []
-        
-    def getPos(self):
-        return self.position
-    
-    def setPos(self, newPos):
-        self.position = newPos
-        
+        if team == 1: self.name = self.name.upper()
+        self.position = [None, None]
+        self.first_move = True
+
     def validateMove(self, dest_cord, board):
-        print("pawn validatemove entered!")
-        #generate possible moves
+        # generate possible moves
         row = self.position[0]
         col = self.position[1]
         moves = []
-        print(self.team)
-        if self.team == 0:
-            srcObj = board[row+1][col]
-            if srcObj == None:
-                moves.append((row+1, col))
-            #TODO add checking for front corners and for out of bounds
-                srcObj2 = board[row+2][col]
-                if row == 1 and srcObj2 == None:
-                    moves.append((row+2,col))
-        #TODO add check for opposite side pawn
-        print(dest_cord)
+
+        if self.name.isupper():  # Team 1 (White)
+            # Standard move forward
+            if board[row - 1][col] == None:
+                moves.append((row - 1, col))
+            # First move: can move two spaces forward
+            if self.first_move and board[row - 2][col] == None:
+                moves.append((row - 2, col))
+            # Capture diagonally left
+            if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
+                moves.append((row - 1, col - 1))
+            # Capture diagonally right
+            if col < 7 and board[row - 1][col + 1] and board[row - 1][col + 1].name.islower():
+                moves.append((row - 1, col + 1))
+
+        else:  # Team 2 (Black)
+            # Standard move forward
+            if board[row + 1][col] == None:
+                moves.append((row + 1, col))
+            # First move: can move two spaces forward
+            if self.first_move and board[row + 2][col] == None:
+                moves.append((row + 2, col))
+            # Capture diagonally left
+            if col > 0 and board[row + 1][col - 1] and board[row + 1][col - 1].name.isupper():
+                moves.append((row + 1, col - 1))
+            # Capture diagonally right
+            if col < 7 and board[row + 1][col + 1] and board[row + 1][col + 1].name.isupper():
+                moves.append((row + 1, col + 1))
+
         if dest_cord in moves:
+            self.first_move = False  # After a move, set first_move to False
             return True
         return False
 
@@ -128,7 +140,7 @@ class King(ChessPiece):
         if dest_cord in moves:
             return True
         return False
-    
+
 class Bishop(ChessPiece):
     def __init__(self,team):
         self.name = 'b'
@@ -157,4 +169,3 @@ class Bishop(ChessPiece):
             row += row_step
             col += col_step
         return True
-
