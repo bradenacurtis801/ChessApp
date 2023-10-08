@@ -41,11 +41,11 @@ class ChessBoard:
 
     def display(self):
         """Display the current state of the chessboard."""
-        for i, row in enumerate(reversed(self.board)):
+        for i, row in enumerate(self.board, start=1):
             display_row = []
             for piece in row:
                 display_row.append(piece.name if piece else ' ')
-            print(f"{8-i} | " + ' | '.join(display_row) + ' |')
+            print(f"{9-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
@@ -85,11 +85,9 @@ class ChessBoard:
                     self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
-
             
-    def handleMove(self, move: str):
+    def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
-        #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
@@ -102,11 +100,13 @@ class ChessBoard:
         else:
             print("Move was invalid, try again.")
             return False
+            #self.player1 = not self.player1 #prevents current player from changing
+            #self.run()
         
         
     def isValidMove(self,src_cord,dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
-        # TODO
+ 
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
 
@@ -116,7 +116,11 @@ class ChessBoard:
             return False
 
         # Check if the piece being moved belongs to the current player
-        if ((self.player1 == True and srcObj.name.upper()) or self.player1 == False and srcObj.name.islower()):
+        if self.player1 and srcObj.name.isupper():
+            pass
+        elif not self.player1 and srcObj.name.islower():
+            pass
+        else:
             print("You can only move your own pieces!")
             return False
         
@@ -129,21 +133,23 @@ class ChessBoard:
                 print("You cannot capture your own piece!")
                 return False
 
+
         #If there's a piece at the source coordinat, call its isValidMove
         if srcObj:
             return srcObj.validateMove(dest_cord, self.board)
         return False
-
+        #if srcObj:
+            #pass
     
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
-        #Setting to type ChessPiece to remove 'any' type like 'piece_to_move.setPos' ...
         piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
         captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
         
         # Update the board
         self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
         self.board[src_cord[0]][src_cord[1]] = None
+        
         # Update the position attribute of the moved piece 
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
       
@@ -164,12 +170,12 @@ class ChessBoard:
                 else:
                     self.quit()
     
-    def convert_to_coord(self, notation: str):
+    def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        col = int(col_map[notation[0].upper()])
-        row = int(notation[1]) - 1  # 8 - row number to get 0-indexed row
-        #type is a tuple, row is flipped because the board is flipped.
+        col = col_map[notation[0].upper()]
+        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+         #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
@@ -207,7 +213,9 @@ class ChessBoard:
         self.__init__()
         self.run()
 
+
             
+
 if __name__ == "__main__":
     print("Welcome to Chess!")
     choice = input("Do you want to load a saved game? (yes/no): ").strip().lower()
