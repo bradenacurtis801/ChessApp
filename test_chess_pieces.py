@@ -14,29 +14,29 @@ class TestChessPieces(unittest.TestCase):
         self.queen.position = (4, 4)  # Place queen at E5
         self.board.board[4][4] = self.queen
         # Test a valid vertical move
-        self.assertTrue(self.queen.moveValidation((6, 4), self.board.board))
+        self.assertTrue(self.queen.validateMove((6, 4), self.board.board))
         # Test a valid horizontal move
-        self.assertTrue(self.queen.moveValidation((4, 6), self.board.board))
+        self.assertTrue(self.queen.validateMove((4, 6), self.board.board))
         # Test a valid diagonal move
-        self.assertTrue(self.queen.moveValidation((6, 6), self.board.board))
+        self.assertTrue(self.queen.validateMove((6, 6), self.board.board))
 
     def test_queen_invalid_move(self):
         self.queen.position = (4, 4)  # Place queen at E5
         self.board.board[4][4] = self.queen
         # Test an invalid L-shape move (like a knight)
-        self.assertFalse(self.queen.moveValidation((6, 5), self.board.board))
+        self.assertFalse(self.queen.validateMove((6, 5), self.board.board))
 
     def test_bishop_valid_move(self):
         self.bishop.position = (4, 4)  # Place bishop at E5
         self.board.board[4][4] = self.bishop
         # Test a valid diagonal move
-        self.assertTrue(self.bishop.moveValidation((6, 6), self.board.board))
+        self.assertTrue(self.bishop.validateMove((6, 6), self.board.board))
 
     def test_bishop_invalid_move(self):
         self.bishop.position = (4, 4)  # Place bishop at E5
         self.board.board[4][4] = self.bishop
         # Test an invalid vertical move
-        self.assertFalse(self.bishop.moveValidation((6, 4), self.board.board))
+        self.assertFalse(self.bishop.validateMove((6, 4), self.board.board))
 
 if __name__ == "__main__":
     unittest.main()
