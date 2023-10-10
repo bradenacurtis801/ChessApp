@@ -1,2 +1,5 @@
 
 *.pyc
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+*.xml
