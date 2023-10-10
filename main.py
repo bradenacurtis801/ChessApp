@@ -1,14 +1,25 @@
 from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+from chessPieceADT import ChessPiece
 import sys,os
 import pickle
 import re
 
 class ChessBoard:
+    #Used to print piece captured
+    piece_names = {
+    'k': 'King',
+    'q': 'Queen',
+    'r': 'Rook',
+    'b': 'Bishop',
+    'n': 'Knight',
+    'p': 'Pawn'
+}
+
     """Represents a chessboard and handles game operations such as moves and display."""
     def __init__(self):
         """Initialize the chessboard with the default setup."""
         # Standard starting positions for a chess game.
-        #Board is upside-down because the first row is row zero.
+        self.player1 = True
         self.board = [
             [Rook(0), Knight(0), Bishop(0), Queen(0), King(0), Bishop(0), Knight(0), Rook(0)],
             [Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0)],
@@ -30,11 +41,11 @@ class ChessBoard:
 
     def display(self):
         """Display the current state of the chessboard."""
-        for i, row in enumerate(reversed(self.board)):
+        for i, row in enumerate(self.board, start=1):
             display_row = []
             for piece in row:
                 display_row.append(piece.name if piece else ' ')
-            print(f"{8-i} | " + ' | '.join(display_row) + ' |')
+            print(f"{9-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
@@ -56,52 +67,115 @@ class ChessBoard:
             
     def run(self):
         """Main game loop, handles input from the players and game progression."""
-        player1 = True
         while True:
-            if player1:
-                player = 1
+            if self.player1:
+                player = 'White'
             else:
-                player = 2
-            resp = input(f'Player {player} turn:')
+                player = 'Black'
+            resp = input(f'{player}\'s move:')
 
             if resp == "quit":
                 self.quit()
             elif resp == "save":
                 self.save()
             elif self.validateInput(resp):
-                self.handleMove(resp)
-                self.display()
+
+                if self.handleMove(resp):  # Only toggle player if handleMove returns True
+                    self.display()
+                    self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
-
-            # This changes the player move after the current player makes a move
-            player1 = not player1
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
-        #get coordinates
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
-        #get the object at the source coordinates
-        srcObj = self.board[source_coord[0]][source_coord[1]]
-        #check if object exists and if the move is valid
-        if(srcObj != None and srcObj.validateMove(destination_coord, self.board) == True):
-            #move object
-            srcObj.setPos(destination_coord)
-            self.board[destination_coord[0]][destination_coord[1]] = self.board[source_coord[0]][source_coord[1]]
-            self.board[source_coord[0]][source_coord[1]] = None
+        
+        # TODO: Use the coordinates to move the piece from source to destination in self.board
+        # ...
+        if self.isValidMove(source_coord,destination_coord):
+            self.movePiece(source_coord, destination_coord)
+            return True
         else:
             print("Move was invalid, try again.")
-            #player1 = not player1 #prevents current player from changing
-            self.run()
+            return False
+            #self.player1 = not self.player1 #prevents current player from changing
+            #self.run()
+        
+        
+    def isValidMove(self,src_cord,dest_cord):
+        """Check if the move from src_cord to dest_cord is valid according to chess rules."""
+ 
+        srcObj = self.board[src_cord[0]][src_cord[1]]
+        destObj = self.board[dest_cord[0]][dest_cord[1]]
+
+         # Check if there's a piece at the source coordinate
+        if not srcObj:
+            print("There's no piece at the source coordinate!")
+            return False
+
+        # Check if the piece being moved belongs to the current player
+        if self.player1 and srcObj.name.isupper():
+            pass
+        elif not self.player1 and srcObj.name.islower():
+            pass
+        else:
+            print("You can only move your own pieces!")
+            return False
+        
+        # Check if the destination has a piece of the same player to stop from capturing players own piece
+        if destObj:
+            if self.player1 and destObj.name.isupper():
+                print("You cannot capture your own piece!")
+                return False
+            elif not self.player1 and destObj.name.islower():
+                print("You cannot capture your own piece!")
+                return False
+
+
+        #If there's a piece at the source coordinat, call its isValidMove
+        if srcObj:
+            return srcObj.validateMove(dest_cord, self.board)
+        return False
+        #if srcObj:
+            #pass
+    
+    def movePiece(self, src_cord, dest_cord):
+        """Move the piece from the source coordinates to the destination coordinates."""
+        piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
+        captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
+        
+        # Update the board
+        self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
+        self.board[src_cord[0]][src_cord[1]] = None
+        
+        # Update the position attribute of the moved piece 
+        piece_to_move.setPos(dest_cord[0], dest_cord[1])
+      
+        # If there's a piece at the destination square, it's captured. 
+        if captured_piece:
+            # Use the dictionary to get the full name of the captured piece.
+            captured_name = ChessBoard.piece_names[captured_piece.name.lower()]
+            print(f"{captured_name} was captured!")
+
+            # Check if the captured piece is a king
+            if captured_piece.name.lower() == 'k':
+                winning_player = 1 if self.player1 else 2
+                print(f"Player {winning_player} wins! The king has been captured.")
+                # Here you can either exit the game or offer to restart
+                choice = input("Do you want to play again? (yes/no): ").strip().lower()
+                if choice == 'yes':
+                    self.reset()
+                else:
+                    self.quit()
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        col = int(col_map[notation[0].upper()])
-        row = int(notation[1]) - 1  # 8 - row number to get 0-indexed row
-        #type is a tuple, row is flipped because the board is flipped.
+        col = col_map[notation[0].upper()]
+        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+         #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
