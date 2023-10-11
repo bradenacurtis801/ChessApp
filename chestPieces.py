@@ -49,9 +49,8 @@ class Pawn(ChessPiece):
 class Rook(ChessPiece):
     def __init__(self, team):
         self.name = 'r'
-        self.team = team
-        if self.team == 0: self.name = self.name.upper()
-        self.position = []
+        if team == 1: self.name = self.name.upper()
+        self.position = [None, None]
 
     def getPos(self):
         return self.position
@@ -60,9 +59,7 @@ class Rook(ChessPiece):
         self.position = newPos
 
     def validateMove(self, dest_cord, board):
-        print("rook validatemove entered!")
         row, col = self.position
-        dest_row, dest_col = dest_cord
         moves = []
 
         # Check horizontal and vertical directions
@@ -73,7 +70,7 @@ class Rook(ChessPiece):
                 srcObj = board[r][c]
                 if srcObj is None:
                     moves.append((r, c))
-                elif srcObj.team != self.team:
+                elif srcObj.name.isupper() != self.name.isupper():  # Check if the piece is from the opposing team
                     moves.append((r, c))
                     break  # Stop if there's an opposing piece (capture)
                 else:
@@ -81,16 +78,15 @@ class Rook(ChessPiece):
                 r += dr
                 c += dc
 
-        print(dest_cord)
         return dest_cord in moves
+
 
 
 class Knight(ChessPiece):
     def __init__(self, team):
         self.name = 'n'
-        self.team = team
-        if self.team == 0: self.name = self.name.upper()
-        self.position = []
+        if team == 1: self.name = self.name.upper()
+        self.position = [None, None]
 
     def getPos(self):
         return self.position
@@ -99,9 +95,9 @@ class Knight(ChessPiece):
         self.position = newPos
 
     def validateMove(self, dest_cord, board):
-        print("knight validatemove entered!")
         row, col = self.position
         moves = []
+
         # Define the possible moves for a knight
         knight_moves = [
             (row + 2, col + 1), (row + 2, col - 1),
@@ -109,15 +105,17 @@ class Knight(ChessPiece):
             (row + 1, col + 2), (row + 1, col - 2),
             (row - 1, col + 2), (row - 1, col - 2)
         ]
+
         # Check if the destination is within the board and not occupied by a friendly piece
         for move in knight_moves:
             r, c = move
             if 0 <= r < 8 and 0 <= c < 8:
                 srcObj = board[r][c]
-                if srcObj is None or srcObj.team != self.team:
+                if srcObj is None or srcObj.name.isupper() != self.name.isupper():
                     moves.append(move)
-        print(dest_cord)
+
         return dest_cord in moves
+
 
 
 class Queen(ChessPiece):
