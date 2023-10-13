@@ -51,6 +51,9 @@ class Rook(ChessPiece):
         self.name = 'r'
         if team == 1: self.name = self.name.upper()
         self.position = [None, None]
+        self.team = team
+        if self.team == 1: self.name = self.name.upper()
+        self.position = []
 
     def getPos(self):
         return self.position
