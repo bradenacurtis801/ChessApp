@@ -50,7 +50,7 @@ class Rook(ChessPiece):
     def __init__(self, team):
         self.name = 'r'
         self.team = team
-        if self.team == 0: self.name = self.name.upper()
+        if self.team == 1: self.name = self.name.upper()
         self.position = []
 
     def getPos(self):
@@ -89,7 +89,7 @@ class Knight(ChessPiece):
     def __init__(self, team):
         self.name = 'n'
         self.team = team
-        if self.team == 0: self.name = self.name.upper()
+        if self.team == 1: self.name = self.name.upper()
         self.position = []
 
     def getPos(self):
