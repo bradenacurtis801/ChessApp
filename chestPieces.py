@@ -55,8 +55,8 @@ class Rook(ChessPiece):
     def getPos(self):
         return self.position
 
-    def setPos(self, newPos):
-        self.position = newPos
+    def setPos(self, row, col):
+        self.position = [row, col]
 
     def validateMove(self, dest_cord, board):
         row, col = self.position
@@ -88,11 +88,11 @@ class Knight(ChessPiece):
         if team == 1: self.name = self.name.upper()
         self.position = [None, None]
 
-    def getPos(self):
-        return self.position
+    # def getPos(self):
+    #     return self.position
 
-    def setPos(self, newPos):
-        self.position = newPos
+    # def setPos(self, newPos):
+    #     self.position = newPos
 
     def validateMove(self, dest_cord, board):
         row, col = self.position
