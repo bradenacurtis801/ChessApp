@@ -152,6 +152,7 @@ class ChessBoard:
         
         # Update the position attribute of the moved piece 
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
+        self.check_pawn_promotion(dest_cord)
       
         # If there's a piece at the destination square, it's captured. 
         if captured_piece:
@@ -169,7 +170,16 @@ class ChessBoard:
                     self.reset()
                 else:
                     self.quit()
-    
+
+    def check_pawn_promotion(self, dest_cord):
+        piece = self.board[dest_cord[0]][dest_cord[1]]
+        if isinstance(piece, Pawn):
+            if (piece.name == 'P' and dest_cord[0] == 0) or (piece.name == 'p' and dest_cord[0] == 7):
+                # Pawn is eligible for promotion
+                team = 1 if piece.name.isupper() else 0
+                self.board[dest_cord[0]][dest_cord[1]] = Queen(team)
+                print("Pawn promoted to Queen!")
+
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
