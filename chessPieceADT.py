@@ -1,23 +1,15 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 class ChessPiece(ABC):
-
+    """Abstract Class which each piece inherits"""
     def __init__(self):
-        self.position = (None,None)
-        self.points = None
-        self.team = 0
+        self.position = [None,None]
+        
      
-    # @abstractmethod   
     def getPos(self):
-        pass
+        return self.position
     
-    # @abstractmethod
-    def setPos(self, pos):
-        pass
     
-    # @abstractmethod
-    def getMoveVector(self):
-        pass
-    
-    def validateMove(self, dest_cord, board):
-        pass
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
+        
