@@ -16,8 +16,20 @@ class ChessBoard:
 }
 
     """Represents a chessboard and handles game operations such as moves and display."""
+    
+    #Used to print piece captured
+    piece_names = {
+    'k': 'King',
+    'q': 'Queen',
+    'r': 'Rook',
+    'b': 'Bishop',
+    'n': 'Knight',
+    'p': 'Pawn'
+}
+    
     def __init__(self):
         """Initialize the chessboard with the default setup."""
+        
         # Standard starting positions for a chess game.
         self.player1 = True
         self.board = [
@@ -30,6 +42,7 @@ class ChessBoard:
             [Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
             [Rook(1), Knight(1), Bishop(1), Queen(1), King(1), Bishop(1), Knight(1), Rook(1)]
         ]
+        
         # Setting the initial positions of the pieces
         for row in range(8):
              for col in range(8):
@@ -37,8 +50,6 @@ class ChessBoard:
                     self.board[row][col].position = (row, col)
                     
                     
-        self.display()
-
     def display(self):
         """Display the current state of the chessboard."""
         for i, row in enumerate(self.board, start=1):
@@ -49,16 +60,14 @@ class ChessBoard:
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
         
+        
     def validateInput(self, move):
         """
     Validates the input move string to ensure it matches the pattern of a valid chess move.
-    
     A valid move is of the format: 'A1-A2' where 'A1' and 'A2' are coordinates on the chessboard.
     The function allows for case-insensitive input and optional spaces around the hyphen.
-    
     Args:
         move (str): The move string to be validated.
-    
     Returns:
         MatchObject: Returns a match object if the move is valid, otherwise returns None.
     """
@@ -67,6 +76,7 @@ class ChessBoard:
             
     def run(self):
         """Main game loop, handles input from the players and game progression."""
+        self.display()
         while True:
             if self.player1:
                 player = 'White'
@@ -85,6 +95,7 @@ class ChessBoard:
                     self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
+                
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
@@ -92,28 +103,26 @@ class ChessBoard:
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
         
-        # TODO: Use the coordinates to move the piece from source to destination in self.board
-        # ...
+        #validate move
         if self.isValidMove(source_coord,destination_coord):
             self.movePiece(source_coord, destination_coord)
             return True
         else:
             print("Move was invalid, try again.")
             return False
-            #self.player1 = not self.player1 #prevents current player from changing
-            #self.run()
         
         
     def isValidMove(self,src_cord,dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
- 
+
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
-
-         # Check if there's a piece at the source coordinate
+        
+        # Check if there's a piece at the source coordinate
         if not srcObj:
             print("There's no piece at the source coordinate!")
             return False
+        
 
         # Check if the piece being moved belongs to the current player
         if self.player1 and srcObj.name.isupper():
@@ -133,13 +142,11 @@ class ChessBoard:
                 print("You cannot capture your own piece!")
                 return False
 
-
         #If there's a piece at the source coordinat, call its isValidMove
         if srcObj:
             return srcObj.validateMove(dest_cord, self.board)
         return False
-        #if srcObj:
-            #pass
+
     
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
@@ -152,7 +159,8 @@ class ChessBoard:
         
         # Update the position attribute of the moved piece 
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
-      
+        self.check_pawn_promotion(dest_cord)
+
         # If there's a piece at the destination square, it's captured. 
         if captured_piece:
             # Use the dictionary to get the full name of the captured piece.
@@ -169,13 +177,27 @@ class ChessBoard:
                     self.reset()
                 else:
                     self.quit()
+
+    def check_pawn_promotion(self, dest_cord):
+        """Converts a pawn into a queen"""
+        piece = self.board[dest_cord[0]][dest_cord[1]]
+        if isinstance(piece, Pawn):
+            if (piece.name == 'P' and dest_cord[0] == 0) or (piece.name == 'p' and dest_cord[0] == 7):
+                # Pawn is eligible for promotion
+                team = 1 if piece.name.isupper() else 0
+                self.board[dest_cord[0]][dest_cord[1]] = Queen(team)
+                self.board[dest_cord[0]][dest_cord[1]].setPos(dest_cord[0],dest_cord[1])
+                print("Pawn promoted to Queen!")
+    
+
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = col_map[notation[0].upper()]
         row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
-         #type is a tuple, row is flipped because the board is flipped.
+
+        #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
             
@@ -188,6 +210,7 @@ class ChessBoard:
         # Exit the program
         sys.exit()
         
+        
     def save(self):
         """Save the current game state to a file for later continuation."""
         # implemented but needs to be tested
@@ -195,6 +218,7 @@ class ChessBoard:
         with open("chess_save.dat", "wb") as f:
             pickle.dump(self, f)
         print("Game has been saved!")
+        
         
     @classmethod
     def load(cls):
@@ -213,8 +237,6 @@ class ChessBoard:
         self.__init__()
         self.run()
 
-
-            
 
 if __name__ == "__main__":
     print("Welcome to Chess!")

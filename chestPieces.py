@@ -7,6 +7,7 @@ class Pawn(ChessPiece):
         self.position = [None, None]
         self.first_move = True
 
+   
     def validateMove(self, dest_cord, board):
         # generate possible moves
         row = self.position[0]
@@ -18,7 +19,8 @@ class Pawn(ChessPiece):
             if board[row - 1][col] == None:
                 moves.append((row - 1, col))
             # First move: can move two spaces forward
-            if self.first_move and board[row - 2][col] == None:
+            if self.first_move and board[row - 2][col] == None and board[row - 1][col] == None:
+
                 moves.append((row - 2, col))
             # Capture diagonally left
             if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
@@ -32,7 +34,7 @@ class Pawn(ChessPiece):
             if board[row + 1][col] == None:
                 moves.append((row + 1, col))
             # First move: can move two spaces forward
-            if self.first_move and board[row + 2][col] == None:
+            if self.first_move and board[row + 2][col] == None and board[row + 1][col] == None:
                 moves.append((row + 2, col))
             # Capture diagonally left
             if col > 0 and board[row + 1][col - 1] and board[row + 1][col - 1].name.isupper():
@@ -45,24 +47,21 @@ class Pawn(ChessPiece):
             self.first_move = False  # After a move, set first_move to False
             return True
         return False
+    
 
 class Rook(ChessPiece):
     def __init__(self, team):
         self.name = 'r'
+        if team == 1: self.name = self.name.upper()
+        self.position = [None, None]
         self.team = team
         if self.team == 1: self.name = self.name.upper()
         self.position = []
 
-    def getPos(self):
-        return self.position
 
-    def setPos(self, newPos):
-        self.position = newPos
 
     def validateMove(self, dest_cord, board):
-        print("rook validatemove entered!")
         row, col = self.position
-        dest_row, dest_col = dest_cord
         moves = []
 
         # Check horizontal and vertical directions
@@ -73,7 +72,7 @@ class Rook(ChessPiece):
                 srcObj = board[r][c]
                 if srcObj is None:
                     moves.append((r, c))
-                elif srcObj.team != self.team:
+                elif srcObj.name.isupper() != self.name.isupper():  # Check if the piece is from the opposing team
                     moves.append((r, c))
                     break  # Stop if there's an opposing piece (capture)
                 else:
@@ -81,27 +80,20 @@ class Rook(ChessPiece):
                 r += dr
                 c += dc
 
-        print(dest_cord)
         return dest_cord in moves
 
 
 class Knight(ChessPiece):
     def __init__(self, team):
         self.name = 'n'
-        self.team = team
-        if self.team == 1: self.name = self.name.upper()
-        self.position = []
+        if team == 1: self.name = self.name.upper()
+        self.position = [None, None]
 
-    def getPos(self):
-        return self.position
-
-    def setPos(self, newPos):
-        self.position = newPos
 
     def validateMove(self, dest_cord, board):
-        print("knight validatemove entered!")
         row, col = self.position
         moves = []
+
         # Define the possible moves for a knight
         knight_moves = [
             (row + 2, col + 1), (row + 2, col - 1),
@@ -109,14 +101,15 @@ class Knight(ChessPiece):
             (row + 1, col + 2), (row + 1, col - 2),
             (row - 1, col + 2), (row - 1, col - 2)
         ]
+
         # Check if the destination is within the board and not occupied by a friendly piece
         for move in knight_moves:
             r, c = move
             if 0 <= r < 8 and 0 <= c < 8:
                 srcObj = board[r][c]
-                if srcObj is None or srcObj.team != self.team:
+                if srcObj is None or srcObj.name.isupper() != self.name.isupper():
                     moves.append(move)
-        print(dest_cord)
+
         return dest_cord in moves
 
 
@@ -145,6 +138,7 @@ class Queen(ChessPiece):
             return self.is_path_clear_diagonal(dest_row, dest_col, board)
         return False
 
+
     def is_path_clear_horizontal(self, dest_col, board):
         step = 1 if dest_col > self.position[1] else -1
         for col in range(self.position[1] + step, dest_col, step):
@@ -152,12 +146,14 @@ class Queen(ChessPiece):
                 return False
         return True
 
+
     def is_path_clear_vertical(self, dest_row, board):
         step = 1 if dest_row > self.position[0] else -1
         for row in range(self.position[0] + step, dest_row, step):
             if board[row][self.position[1]]:
                 return False
         return True
+
 
     def is_path_clear_diagonal(self, dest_row, dest_col, board):
         row_step = 1 if dest_row > self.position[0] else -1
@@ -177,14 +173,14 @@ class King(ChessPiece):
         if team == 1: self.name = self.name.upper()
         self.position = []
     
-    #a King can move one square in any direction
+    
     def validateMove(self, dest_cord, board) -> bool:
         dest_row, dest_col = dest_cord
-        # Generate possible moves
         row = self.position[0]
         col = self.position[1]
+        
+        # Create list of valid moves around the King
         moves = []
-        # Check all squares around king (including the king)
         for i in range(-1, 2):
             for j in range(-1, 2):
                 try:
@@ -200,6 +196,7 @@ class King(ChessPiece):
         if dest_cord in moves:
             return True
         return False
+
 
 class Bishop(ChessPiece):
     def __init__(self,team):
@@ -217,6 +214,18 @@ class Bishop(ChessPiece):
         if row_diff == col_diff:
             return self.is_path_clear_diagonal(dest_row, dest_col, board)
         return False
+
+
+    def validateMove(self, dest: tuple, board) -> bool:
+        dest_row, dest_col = dest
+        # Check for diagonal movement
+        row_diff = abs(dest_row - self.position[0])
+        col_diff = abs(dest_col - self.position[1])
+        
+        if row_diff == col_diff:
+            return self.is_path_clear_diagonal(dest_row, dest_col, board)
+        return False
+
 
     def is_path_clear_diagonal(self, dest_row, dest_col, board):
         # Same as the Queen's is_path_clear_diagonal method
