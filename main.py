@@ -76,10 +76,7 @@ class ChessBoard:
 
             if resp == "quit":
                 self.quit()
-            elif resp == "save":
-                self.save()
             elif self.validateInput(resp):
-
                 if self.handleMove(resp):  # Only toggle player if handleMove returns True
                     self.display()
                     self.player1 = not self.player1 # This changes the player move after the current player makes a move
@@ -218,16 +215,6 @@ class ChessBoard:
 
 if __name__ == "__main__":
     print("Welcome to Chess!")
-    choice = input("Do you want to load a saved game? (yes/no): ").strip().lower()
-
-    if choice == 'yes':
-        game = ChessBoard.load()
-        if game:
-            game.run()
-        else:
-            print("Starting a new game.")
-            game = ChessBoard()
-            game.run()
-    else:
-        game = ChessBoard()
-        game.run()
+  
+    game = ChessBoard()
+    game.run()
