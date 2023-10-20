@@ -8,8 +8,8 @@ class ChessPiece(ABC):
      
     def getPos(self):
         return self.position
-    
-    
+
+      
     def setPos(self, row: int, col: int):
         self.position = [row, col]
         

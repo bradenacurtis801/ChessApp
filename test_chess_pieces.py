@@ -1,6 +1,8 @@
 import unittest
 from main import ChessBoard
+
 from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+
 
 class TestChessPieces(unittest.TestCase):
 
@@ -10,6 +12,7 @@ class TestChessPieces(unittest.TestCase):
         self.queen = Queen(1)  # Assuming 0 is for white pieces
         self.bishop = Bishop(1)
         self.king = King(1)
+
 
     def test_queen_valid_move(self):
         self.queen.position = (4, 4)  # Place queen at E5

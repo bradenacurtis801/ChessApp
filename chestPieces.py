@@ -7,7 +7,7 @@ class Pawn(ChessPiece):
         self.position = [None, None]
         self.first_move = True
 
-
+   
     def validateMove(self, dest_cord, board):
         # generate possible moves
         row = self.position[0]
@@ -20,6 +20,7 @@ class Pawn(ChessPiece):
                 moves.append((row - 1, col))
             # First move: can move two spaces forward
             if self.first_move and board[row - 2][col] == None and board[row - 1][col] == None:
+
                 moves.append((row - 2, col))
             # Capture diagonally left
             if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
@@ -56,6 +57,7 @@ class Rook(ChessPiece):
         self.team = team
         if self.team == 1: self.name = self.name.upper()
         self.position = []
+
 
 
     def validateMove(self, dest_cord, board):
@@ -202,6 +204,16 @@ class Bishop(ChessPiece):
         if team == 1: self.name = self.name.upper()
         self.move_vector = 2*[]
         self.position = 2*[]
+
+    def validateMove(self, dest: tuple, board) -> bool:
+        dest_row, dest_col = dest
+        # Check for diagonal movement
+        row_diff = abs(dest_row - self.position[0])
+        col_diff = abs(dest_col - self.position[1])
+        
+        if row_diff == col_diff:
+            return self.is_path_clear_diagonal(dest_row, dest_col, board)
+        return False
 
 
     def validateMove(self, dest: tuple, board) -> bool:

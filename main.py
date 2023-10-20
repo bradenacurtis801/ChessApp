@@ -5,6 +5,16 @@ import pickle
 import re
 
 class ChessBoard:
+    #Used to print piece captured
+    piece_names = {
+    'k': 'King',
+    'q': 'Queen',
+    'r': 'Rook',
+    'b': 'Bishop',
+    'n': 'Knight',
+    'p': 'Pawn'
+}
+
     """Represents a chessboard and handles game operations such as moves and display."""
     
     #Used to print piece captured
@@ -73,7 +83,7 @@ class ChessBoard:
             else:
                 player = 'Black'
             resp = input(f'{player}\'s move:')
-            
+
             if resp == "quit":
                 self.quit()
             elif resp == "save":
@@ -85,7 +95,7 @@ class ChessBoard:
                     self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
-            
+                
             
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
@@ -104,6 +114,7 @@ class ChessBoard:
         
     def isValidMove(self,src_cord,dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
+
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
         
@@ -112,6 +123,7 @@ class ChessBoard:
             print("There's no piece at the source coordinate!")
             return False
         
+
         # Check if the piece being moved belongs to the current player
         if self.player1 and srcObj.name.isupper():
             pass
@@ -129,7 +141,7 @@ class ChessBoard:
             elif not self.player1 and destObj.name.islower():
                 print("You cannot capture your own piece!")
                 return False
-        
+
         #If there's a piece at the source coordinat, call its isValidMove
         if srcObj:
             return srcObj.validateMove(dest_cord, self.board)
@@ -148,7 +160,7 @@ class ChessBoard:
         # Update the position attribute of the moved piece 
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
         self.check_pawn_promotion(dest_cord)
-      
+
         # If there's a piece at the destination square, it's captured. 
         if captured_piece:
             # Use the dictionary to get the full name of the captured piece.
@@ -166,7 +178,6 @@ class ChessBoard:
                 else:
                     self.quit()
 
-
     def check_pawn_promotion(self, dest_cord):
         """Converts a pawn into a queen"""
         piece = self.board[dest_cord[0]][dest_cord[1]]
@@ -178,12 +189,14 @@ class ChessBoard:
                 self.board[dest_cord[0]][dest_cord[1]].setPos(dest_cord[0],dest_cord[1])
                 print("Pawn promoted to Queen!")
     
+
     
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
         col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = col_map[notation[0].upper()]
         row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
+
         #type is a tuple, row is flipped because the board is flipped.
         return (row, col)
                 
