@@ -4,7 +4,6 @@ DESCRIPTION
 
 Table of Contents
 * Prerequisites
-* Installation
 * Running the Program
 * Gameplay Instructions
 * Exiting the Game
