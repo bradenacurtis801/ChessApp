@@ -3,7 +3,7 @@
     {
         "game_id":3,
         "description": "This is suppose to put the red king in check",
-        "status": "Unknown",
+        "status": "passed",
         "moves": [
           {"move": "e2-e4"},
           {"move": "e7-e5"},
