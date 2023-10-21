@@ -62,8 +62,6 @@ class ChessBoard:
                 if piece:
                     piece.position = (row, col)
 
-        self.display()
-
     def display(self):
         uniDict = {
             BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
@@ -89,6 +87,7 @@ class ChessBoard:
 
     def run(self):
         """Main game loop, handles input from the players and game progression."""
+        self.display()
         while True:
             if self.player1:
                 player = 'Blue'
@@ -102,9 +101,8 @@ class ChessBoard:
                 self.save()
             elif self.validateInput(resp):
 
-                if self.handleMove(resp):  # Only toggle player if handleMove returns True
+                if self.handleMove(resp):
                     self.display()
-                    # self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
                 print("Invalid input. Please provide a move in the format 'E2 – E4'.")
 
@@ -122,7 +120,7 @@ class ChessBoard:
         # ...
         if self.isValidMove(source_coord, destination_coord):
             self.movePiece(source_coord, destination_coord)
-            chess_board.display() 
+            # self.display() ### placed here for debugging purposes
             self.switch_player()
             opponent_team = 'RED' if self.player1 else 'BLUE'
             if self.is_in_check(opponent_team):
@@ -131,8 +129,6 @@ class ChessBoard:
         else:
             print("Move was invalid, try again.")
             return False
-            # self.player1 = not self.player1 #prevents current player from changing
-            # self.run()
 
     def isValidMove(self, src_cord, dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
@@ -243,17 +239,7 @@ class ChessBoard:
         """Reset the game state to the default starting position and restarts the game."""
         self.__init__()
         self.run()
-######################### TEMP ###########################################################################
 
-
-def convert_to_coord(notation):
-    """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
-    col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3,
-               'E': 4, 'F': 5, 'G': 6, 'H': 7}
-    col = col_map[notation[0].upper()]
-    row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
-    # type is a tuple, row is flipped because the board is flipped.
-    return (row, col)
 
 
 if __name__ == "__main__":
