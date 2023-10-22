@@ -122,7 +122,7 @@ class ChessBoard:
                     symbol = uniDict[piece.team][type(piece)]
                     # Use the try_display_unicode function to get a compatible symbol
                     compatible_symbol = try_display_unicode(symbol)
-                    display_row.append(color + compatible_symbol + COLORS['ENDC'])
+                    display_row.append(f"{compatible_symbol}")
                 else:
                     display_row.append(' ')
             print(f"{9-i} | " + ' | '.join(display_row) + ' |')
