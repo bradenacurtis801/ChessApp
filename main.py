@@ -1,6 +1,7 @@
 from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
 from chessPieceADT import ChessPiece
 from errors import ERROR_CODES
+import requirements
 import sys
 import os
 import pickle
@@ -27,30 +28,12 @@ COLORS = {
 }
 
 
-def try_display_unicode(char):
-    unicode_to_letter = {
-        "♙": "P",
-        "♖": "R",
-        "♘": "N",
-        "♗": "B",
-        "♔": "K",
-        "♕": "Q",
-        "♟": "p",
-        "♜": "r",
-        "♞": "n",
-        "♝": "b",
-        "♚": "k",
-        "♛": "q",
-    }
+valid_unicode_characters = {"♙", "♖", "♘", "♗", "♔", "♕", "♟", "♜", "♞", "♝", "♚", "♛"}
 
-    try:
-        # Attempt to print the Unicode character to a dummy stream
-        print(char, end='', file=open(os.devnull, 'w'))
-        return char
-    except UnicodeEncodeError:
-        # If there's an error, return the letter representation
-        return unicode_to_letter.get(char, "?")
-
+def validate_unicode(char):
+    if char not in valid_unicode_characters:
+        return "?"  # Replace with a placeholder or handle the error
+    return char
 
 class ChessBoard:
     # Used to print piece captured
@@ -103,16 +86,11 @@ class ChessBoard:
                     piece.position = (row, col)
 
     def display(self):
-        # uniDict = {
-        #     BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
-        #     RED: {Pawn: "♟", Rook: "♜", Knight: "♞", Bishop: "♝", King: "♚", Queen: "♛"}
-        # }
-        
         uniDict = {
-            BLUE: {Pawn: "p", Rook: "R", Knight: "K", Bishop: "B", King: "K", Queen: "Q"},
-            RED: {Pawn: "p", Rook: "r", Knight: "k", Bishop: "b", King: "k", Queen: "q"}
+            BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
+            RED: {Pawn: "♟", Rook: "♜", Knight: "♞",
+                  Bishop: "♝", King: "♚", Queen: "♛"}
         }
-        
         """Display the current state of the chessboard."""
         for i, row in enumerate(reversed(self.board), start=1):
             display_row = []
@@ -120,15 +98,12 @@ class ChessBoard:
                 if piece:
                     color = COLORS[piece.team]
                     symbol = uniDict[piece.team][type(piece)]
-                    # Use the try_display_unicode function to get a compatible symbol
-                    compatible_symbol = try_display_unicode(symbol)
-                    display_row.append(f"{compatible_symbol}")
+                    display_row.append(color + symbol + COLORS['ENDC'])
                 else:
                     display_row.append(' ')
             print(f"{9-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
-
 
     def validateInput(self, move):
         return re.match(r'^[A-Ha-h][1-8]\s*-\s*[A-Ha-h][1-8]$', move, re.I)
