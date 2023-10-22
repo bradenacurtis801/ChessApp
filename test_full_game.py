@@ -47,7 +47,8 @@ def simulate_game(game, chess_board):
         else:
             move_str = move
 
-        if not chess_board.handleMove(move_str):
+        chess_board.handleMove(move_str)
+        if not chess_board.result['status']:
             print(f'Invalid move: {move_str} in game {game_id}')
 
         chess_board.display()
@@ -74,6 +75,6 @@ if __name__ == "__main__":
     try:
         # unittest.main() 
         chess_board = ChessBoard()  # Create an instance of the ChessBoard class
-        simulate_games_from_json('testMoves.json', chess_board, specified_game_id=None)  # Simulate games from the specified JSON file
+        simulate_games_from_json('testMoves.json', chess_board, specified_game_id=3)  # Simulate games from the specified JSON file
     except SystemExit as e:
         print(e)

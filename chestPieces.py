@@ -26,7 +26,7 @@ class Pawn(ChessPiece):
     def validateMove(self, dest_cord, board):
         moves = self.generateMoves(board)
         if dest_cord in moves:
-            print(f"{self.name} at position {convert_to_human_readable(self.position)} can move to {convert_to_human_readable(dest_cord)}")
+            # print(f"{self.name} at position {convert_to_human_readable(self.position)} can move to {convert_to_human_readable(dest_cord)}") ## FOR DEBUGGING 
             return True
         return False
 
@@ -43,10 +43,10 @@ class Pawn(ChessPiece):
             if self.first_move and board[row - 1][col] == None and board[row - 2][col] == None:
                 moves.append((row - 2, col))
             # Capture diagonally left
-            if self.is_valid_position(row-1, col-1) and board[row - 1][col - 1] and board[row - 1][col - 1].team == 'BLUE':
+            if self.is_valid_position(row-1, col-1) and board[row - 1][col - 1] and board[row - 1][col - 1].team == 'RED':
                 moves.append((row - 1, col - 1))
             # Capture diagonally right
-            if self.is_valid_position(row-1, col+1) and board[row - 1][col + 1] and board[row - 1][col + 1].team == 'BLUE':
+            if self.is_valid_position(row-1, col+1) and board[row - 1][col + 1] and board[row - 1][col + 1].team == 'RED':
                 moves.append((row - 1, col + 1))
         else:  # Team 2 (RED)
             # Standard move forward
@@ -56,13 +56,13 @@ class Pawn(ChessPiece):
             if self.first_move and board[row + 1][col] == None and board[row + 2][col] == None:
                 moves.append((row + 2, col))
             # Capture diagonally left
-            if self.is_valid_position(row+1, col-1) and board[row + 1][col - 1] and board[row + 1][col - 1].team == 'RED':
+            if self.is_valid_position(row+1, col-1) and board[row + 1][col - 1] and board[row + 1][col - 1].team == 'BLUE':
                 moves.append((row + 1, col - 1))
             # Capture diagonally right
-            if self.is_valid_position(row+1, col+1) and board[row + 1][col + 1] and board[row + 1][col + 1].team == 'RED':
+            if self.is_valid_position(row+1, col+1) and board[row + 1][col + 1] and board[row + 1][col + 1].team == 'BLUE':
                 moves.append((row + 1, col + 1))
 
-        print_valid_moves(self.name, self.position, moves)
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
         return moves
 
     def is_valid_position(self, row, col):
@@ -102,7 +102,7 @@ class Rook(ChessPiece):
                     break  # Stop if there's a friendly piece
                 r += dr
                 c += dc
-        print_valid_moves(self.name, self.position, moves)
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
         return moves
 
     
@@ -137,7 +137,7 @@ class Knight(ChessPiece):
                 srcObj = board[r][c]
                 if srcObj is None or srcObj.team != self.team:
                     moves.append((r, c))
-        print_valid_moves(self.name, self.position, moves)
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
         return moves
 
 
@@ -179,7 +179,7 @@ class Queen(ChessPiece):
                         moves.append((row, col))
                     row += i
                     col += j
-        print_valid_moves(self.name, self.position, moves)
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
         return moves
 
 
