@@ -53,6 +53,7 @@ def simulate_game(game, chess_board):
 
         chess_board.display()
     print(f'Simulation of game {game_id} completed\n')
+    chess_board.__init__()
 
 def simulate_games_from_json(json_file_path, chess_board, specified_game_id=None):
     # First, check for duplicate game IDs
@@ -75,6 +76,6 @@ if __name__ == "__main__":
     try:
         # unittest.main() 
         chess_board = ChessBoard()  # Create an instance of the ChessBoard class
-        simulate_games_from_json('testMoves.json', chess_board, specified_game_id=3)  # Simulate games from the specified JSON file
+        simulate_games_from_json('testMoves.json', chess_board, specified_game_id=5)  # Simulate games from the specified JSON file
     except SystemExit as e:
         print(e)

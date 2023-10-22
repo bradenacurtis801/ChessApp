@@ -18,9 +18,9 @@ class Pawn(ChessPiece):
             self.first_move = False
 
         # Check if the pawn has reached the end of the board for promotion.
-        if self.team == 'RED' and row == 0:
+        if self.team == 'RED' and row == 7:
             self.isPromoted = True
-        elif self.team == 'BLUE' and row == 7:
+        elif self.team == 'BLUE' and row == 0:
             self.isPromoted = True
 
     def validateMove(self, dest_cord, board):
@@ -160,12 +160,19 @@ class Queen(ChessPiece):
         moves = []
 
         # Horizontal and Vertical moves
-        for i in range(8):
-            if i != self.position[0]:  # Vertical
-                moves.append((i, self.position[1]))
-            if i != self.position[1]:  # Horizontal
-                moves.append((self.position[0], i))
-        
+        # Horizontal and Vertical moves
+        for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            row, col = self.position[0] + direction[0], self.position[1] + direction[1]
+            while 0 <= row < 8 and 0 <= col < 8:
+                if board[row][col]:
+                    if board[row][col].team != self.team:
+                        moves.append((row, col))
+                    break
+                else:
+                    moves.append((row, col))
+                row += direction[0]
+                col += direction[1]
+                
         # Diagonal moves
         for i in [-1, 1]:
             for j in [-1, 1]:

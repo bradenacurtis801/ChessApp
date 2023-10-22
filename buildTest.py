@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import simpledialog
 import tkinter as tk
+from tkinter import messagebox
 import json
+from LargeInputDialog import LargeInputDialog
+
 
 class ChessBoard(tk.Tk):
     def __init__(self):
@@ -70,13 +73,50 @@ class ChessBoard(tk.Tk):
         ]
 
     def on_finish_click(self):
+        # Ask the user if they want to save the game simulation
+        result = messagebox.askyesno("Save Game", "Do you want to save this game simulation to the JSON file?")
+
+        # If user selects 'Yes'
+        if result:
+            # Prompt the user for a description using the custom dialog
+            dialog = LargeInputDialog(self, title="Description", prompt="Please describe your test case")
+            description = dialog.user_input
+            if description is None:  # If user clicked "Cancel"
+                description = ""  # Default to an empty string
+
+            # 1. Read the existing content of the JSON file
+            with open('testMoves.json', 'r') as file:
+                data = json.load(file)
+                games = data['games']
+
+            # 2. Compute the next game ID
+            max_game_id = max(game['game_id'] for game in games)
+            next_game_id = max_game_id + 1
+
+            # Create the new game data
+            new_game = {
+                "game_id": next_game_id,
+                "description": description,
+                "status": "",
+                "moves": self.moves
+            }
+
+            # 4. Append the new game to the existing games
+            games.append(new_game)
+
+            # 5. Write the updated content back to the JSON file
+            with open('testMoves.json', 'w') as file:
+                json.dump(data, file, indent=4)
+
         # Close the GUI
-        self.destroy()
+        # self.destroy()
+        self.on_restart_click()
+        return
 
     def on_restart_click(self):
         # Reset variables
         self.setup_variables()
-        
+
         # Update the board state
         self.setup_board()
 
@@ -87,10 +127,11 @@ class ChessBoard(tk.Tk):
             # If the same piece is clicked again or another piece of the same color is clicked, deselect the current piece
             if cell_piece and cell_piece.team == self.turn:
                 self.deselect_current_piece()
-                if (i, j) != self.selected_position:  # If a different piece of the same color is clicked, select it
+                # If a different piece of the same color is clicked, select it
+                if (i, j) != self.selected_position:
                     self.select_piece(cell_piece, i, j)
                 return
-            
+
             self.perform_move(i, j)
             self.switch_turn()
         elif cell_piece and cell_piece.team == self.turn:
@@ -99,24 +140,30 @@ class ChessBoard(tk.Tk):
     def deselect_current_piece(self):
         if self.selected_position:
             i, j = self.selected_position
-            self.buttons[i][j].config(bg='SystemButtonFace')  # Reset the background color to default
+            # Reset the background color to default
+            self.buttons[i][j].config(bg='SystemButtonFace')
         self.selected_piece = None
         self.selected_position = None
 
     def perform_move(self, i, j):
         dest = chr(j + ord('A')) + str(8 - i)
-        start = chr(self.selected_position[1] + ord('A')) + str(8 - self.selected_position[0])
+        start = chr(
+            self.selected_position[1] + ord('A')) + str(8 - self.selected_position[0])
         self.moves.append({"move": f"{start}-{dest}"})
         self.initial_setup[i][j] = self.selected_piece
-        self.initial_setup[self.selected_position[0]][self.selected_position[1]] = None
+        self.initial_setup[self.selected_position[0]
+                           ][self.selected_position[1]] = None
         self.buttons[i][j]['text'] = self.selected_piece.name
         self.buttons[i][j]['fg'] = 'red' if self.selected_piece.team == "Red" else 'blue'
-        self.buttons[self.selected_position[0]][self.selected_position[1]]['text'] = ""
-        self.buttons[self.selected_position[0]][self.selected_position[1]]['fg'] = 'black'
-        
+        self.buttons[self.selected_position[0]
+                     ][self.selected_position[1]]['text'] = ""
+        self.buttons[self.selected_position[0]
+                     ][self.selected_position[1]]['fg'] = 'black'
+
         # Reset the background color of the original position
-        self.buttons[self.selected_position[0]][self.selected_position[1]].config(bg='SystemButtonFace')
-        
+        self.buttons[self.selected_position[0]
+                     ][self.selected_position[1]].config(bg='SystemButtonFace')
+
         self.selected_piece = None
         self.selected_position = None
 
@@ -128,8 +175,8 @@ class ChessBoard(tk.Tk):
             self.deselect_current_piece()
         self.selected_piece = cell_piece
         self.selected_position = (i, j)
-        self.buttons[i][j].config(bg='lightgray')  # Change the background color to indicate selection
-
+        # Change the background color to indicate selection
+        self.buttons[i][j].config(bg='lightgray')
 
     def get_moves(self):
         return {
@@ -149,15 +196,16 @@ class piece:
 if __name__ == "__main__":
     chess_board = ChessBoard()
     chess_board.mainloop()
-    
+
     data = chess_board.get_moves()
-    
+
     # Indent each move with 11 spaces, then join them with ",\n"
-    moves_str = ",\n".join("       " + json.dumps(move, separators=(',', ': ')) for move in data['moves'])
+    moves_str = ",\n".join(
+        "       " + json.dumps(move, separators=(',', ': ')) for move in data['moves'])
     data['moves'] = "REPLACE_ME"  # Temporary placeholder
     base_data_str = json.dumps(data, indent=4, separators=(',', ': '))
 
     # Replace the placeholder with the formatted moves string
-    formatted_json = base_data_str.replace('"REPLACE_ME"', f'[\n{moves_str}\n    ]')
+    formatted_json = base_data_str.replace(
+        '"REPLACE_ME"', f'[\n{moves_str}\n    ]')
     print(formatted_json)
-

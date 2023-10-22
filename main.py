@@ -208,17 +208,19 @@ class ChessBoard:
         # Update the position attribute of the moved piece
         piece_to_move.setPos(dest_cord[0], dest_cord[1])
 
-        if isinstance(piece_to_move, Pawn) and piece_to_move.isPromoted:
-            promoted_queen = Queen(piece_to_move.team)
-            promoted_queen.setPos(dest_cord[0], dest_cord[1])
-            self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
-
         # If there's a piece at the destination square, it's captured.
         if captured_piece:
             captured_name = captured_piece.name
             self.result['capture'] = captured_name
             self.printStatment(
                 f"{COLORS[captured_name.upper()]}{captured_name} was captured!{COLORS['ENDC']}")
+            
+        if isinstance(piece_to_move, Pawn) and piece_to_move.isPromoted:
+            promoted_queen = Queen(piece_to_move.team)
+            promoted_queen.setPos(dest_cord[0], dest_cord[1])
+            self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
+            self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
+
 
             # Check if the captured piece is a king
             if captured_name.lower() == 'king':
@@ -288,10 +290,6 @@ class ChessBoard:
         self.result['capture'] = None
         self.result['win'] = False
         
-    def save_game_history(self, filename="game_history.json"):
-        with open(filename, "w") as file:
-            json.dump(self.game_history, file, indent=4)
-
 if __name__ == "__main__":
     print("Welcome to Chess!")
     game = ChessBoard()
