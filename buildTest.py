@@ -60,9 +60,9 @@ class ChessBoard(tk.Tk):
 
     def get_initial_setup(self):
         return [
-            [piece("Pawn", "Blue") for _ in range(8)],
             [piece("Rook", "Blue"), piece("Knight", "Blue"), piece("Bishop", "Blue"), piece("Queen", "Blue"), piece(
-                "King", "Blue"), piece("Bishop", "Blue"), piece("Knight", "Blue"), piece("Rook", "Blue")]
+                "King", "Blue"), piece("Bishop", "Blue"), piece("Knight", "Blue"), piece("Rook", "Blue")],
+            [piece("Pawn", "Blue") for _ in range(8)],
         ] + [[None for _ in range(8)] for _ in range(4)] + [
             [piece("Pawn", "Red") for _ in range(8)],
             [piece("Rook", "Red"), piece("Knight", "Red"), piece("Bishop", "Red"), piece("Queen", "Red"), piece(
