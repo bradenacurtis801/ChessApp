@@ -27,14 +27,6 @@ COLORS = {
     'ENDC': '\033[0m'     # Reset to default
 }
 
-
-valid_unicode_characters = {"♙", "♖", "♘", "♗", "♔", "♕", "♟", "♜", "♞", "♝", "♚", "♛"}
-
-def validate_unicode(char):
-    if char not in valid_unicode_characters:
-        return "?"  # Replace with a placeholder or handle the error
-    return char
-
 class ChessBoard:
     # Used to print piece captured
     piece_names = {
@@ -86,10 +78,16 @@ class ChessBoard:
                     piece.position = (row, col)
 
     def display(self):
+        # uniDict = {
+        #     BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
+        #     RED: {Pawn: "♟", Rook: "♜", Knight: "♞",
+        #           Bishop: "♝", King: "♚", Queen: "♛"}
+        # }
+        
         uniDict = {
-            BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
-            RED: {Pawn: "♟", Rook: "♜", Knight: "♞",
-                  Bishop: "♝", King: "♚", Queen: "♛"}
+            BLUE: {Pawn: "P", Rook: "R", Knight: "K", Bishop: "B", King: "K", Queen: "Q"},
+            RED: {Pawn: "p", Rook: "r", Knight: "k",
+                  Bishop: "b", King: "k", Queen: "q"}
         }
         """Display the current state of the chessboard."""
         for i, row in enumerate(reversed(self.board), start=1):
