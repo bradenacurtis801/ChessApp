@@ -9,6 +9,7 @@ import json
 
 BLUE = "BLUE"  # White is now Blue
 RED = "RED"  # Black is now Red
+GREEN = '\033[92m'
 
 COLORS = {
     'BLUE': '\033[94m',  # Blue color
@@ -24,6 +25,31 @@ COLORS = {
     'KING': '\033[1;91m',     # Bright Red color
     'ENDC': '\033[0m'     # Reset to default
 }
+
+
+def try_display_unicode(char):
+    unicode_to_letter = {
+        "♙": "P",
+        "♖": "R",
+        "♘": "N",
+        "♗": "B",
+        "♔": "K",
+        "♕": "Q",
+        "♟": "p",
+        "♜": "r",
+        "♞": "n",
+        "♝": "b",
+        "♚": "k",
+        "♛": "q",
+    }
+
+    try:
+        # Attempt to print the Unicode character to a dummy stream
+        print(char, end='', file=open(os.devnull, 'w'))
+        return char
+    except UnicodeEncodeError:
+        # If there's an error, return the letter representation
+        return unicode_to_letter.get(char, "?")
 
 
 class ChessBoard:
@@ -79,9 +105,9 @@ class ChessBoard:
     def display(self):
         uniDict = {
             BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
-            RED: {Pawn: "♟", Rook: "♜", Knight: "♞",
-                  Bishop: "♝", King: "♚", Queen: "♛"}
+            RED: {Pawn: "♟", Rook: "♜", Knight: "♞", Bishop: "♝", King: "♚", Queen: "♛"}
         }
+        
         """Display the current state of the chessboard."""
         for i, row in enumerate(reversed(self.board), start=1):
             display_row = []
@@ -89,12 +115,15 @@ class ChessBoard:
                 if piece:
                     color = COLORS[piece.team]
                     symbol = uniDict[piece.team][type(piece)]
-                    display_row.append(color + symbol + COLORS['ENDC'])
+                    # Use the try_display_unicode function to get a compatible symbol
+                    compatible_symbol = try_display_unicode(symbol)
+                    display_row.append(color + compatible_symbol + COLORS['ENDC'])
                 else:
                     display_row.append(' ')
             print(f"{9-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
+
 
     def validateInput(self, move):
         return re.match(r'^[A-Ha-h][1-8]\s*-\s*[A-Ha-h][1-8]$', move, re.I)
@@ -197,6 +226,7 @@ class ChessBoard:
         return False
 
     def movePiece(self, src_cord, dest_cord):
+        captured_name = None
         """Move the piece from the source coordinates to the destination coordinates."""
         piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
         captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
@@ -222,18 +252,18 @@ class ChessBoard:
             self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
 
 
-            # Check if the captured piece is a king
-            if captured_name.lower() == 'king':
-                winning_player = 'Red' if self.player1 else 'Blue'
-                self.printStatment(f"Player {winning_player} wins! The king has been captured.")
-                self.result["win"] = True
-                # Here you can either exit the game or offer to restart
-                choice = input(
-                    "Do you want to play again? (yes/no): ").strip().lower()
-                if choice == 'yes':
-                    self.reset()
-                else:
-                    self.quit()
+        # Check if the captured piece is a king
+        if captured_name and captured_name.lower() == 'king':
+            winning_player = 'Red' if self.player1 else 'Blue'
+            self.printStatment(f"{GREEN}Player {winning_player} wins! The king has been captured.{COLORS['ENDC']}")
+            self.result["win"] = True
+            # Here you can either exit the game or offer to restart
+            choice = input(
+                "Do you want to play again? (yes/no): ").strip().lower()
+            if choice == 'yes':
+                self.reset()
+            else:
+                self.quit()
 
     def is_in_check(self, team):
         # Get the king's position based on the team.
