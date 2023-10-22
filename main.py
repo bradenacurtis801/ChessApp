@@ -103,9 +103,14 @@ class ChessBoard:
                     piece.position = (row, col)
 
     def display(self):
+        # uniDict = {
+        #     BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
+        #     RED: {Pawn: "♟", Rook: "♜", Knight: "♞", Bishop: "♝", King: "♚", Queen: "♛"}
+        # }
+        
         uniDict = {
-            BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
-            RED: {Pawn: "♟", Rook: "♜", Knight: "♞", Bishop: "♝", King: "♚", Queen: "♛"}
+            BLUE: {Pawn: "p", Rook: "R", Knight: "K", Bishop: "B", King: "K", Queen: "Q"},
+            RED: {Pawn: "p", Rook: "r", Knight: "k", Bishop: "b", King: "k", Queen: "q"}
         }
         
         """Display the current state of the chessboard."""
