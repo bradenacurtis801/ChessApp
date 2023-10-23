@@ -1,4 +1,4 @@
-from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight, convert_to_human_readable
 from chessPieceADT import ChessPiece
 from errors import ERROR_CODES
 import requirements
@@ -207,47 +207,54 @@ class ChessBoard:
         return False
 
     def movePiece(self, src_cord, dest_cord):
-        captured_name = None
         """Move the piece from the source coordinates to the destination coordinates."""
-        piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
         captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
-
-        # Update the board
-        self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
-        self.board[src_cord[0]][src_cord[1]] = None
-
-        # Update the position attribute of the moved piece
-        piece_to_move.setPos(dest_cord[0], dest_cord[1])
-
-        # If there's a piece at the destination square, it's captured.
+        
+        self.update_board_state(src_cord, dest_cord)
+        
         if captured_piece:
-            captured_name = captured_piece.name
-            self.result['capture'] = captured_name
-            self.printStatment(
-                f"{COLORS[captured_name.upper()]}{captured_name} was captured!{COLORS['ENDC']}")
-            
-        if isinstance(piece_to_move, Pawn) and piece_to_move.isPromoted:
-            promoted_queen = Queen(piece_to_move.team)
-            promoted_queen.setPos(dest_cord[0], dest_cord[1])
-            self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
-            self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
+            self.handle_capture(captured_piece)
 
+        moving_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
+        if isinstance(moving_piece, Pawn) and moving_piece.isPromoted:
+            self.handle_promotion(dest_cord)
 
-        # Check if the captured piece is a king
-        if captured_name and captured_name.lower() == 'king':
-            winning_player = 'Red' if self.player1 else 'Blue'
-            self.printStatment(f"{GREEN}Player {winning_player} wins! The king has been captured.{COLORS['ENDC']}")
-            self.result["win"] = True
-            # Here you can either exit the game or offer to restart
-            choice = input(
-                "Do you want to play again? (yes/no): ").strip().lower()
-            if choice == 'yes':
-                self.reset()
-            else:
-                self.quit()
+        if captured_piece and captured_piece.name.lower() == 'king':
+            self.check_for_win()
+
+    def update_board_state(self, src, dest):
+        piece_to_move: ChessPiece = self.board[src[0]][src[1]]
+        self.board[dest[0]][dest[1]] = piece_to_move
+        self.board[src[0]][src[1]] = None
+        piece_to_move.setPos(dest[0], dest[1])
+
+    def handle_capture(self, captured_piece):
+        captured_name = captured_piece.name
+        self.result['capture'] = captured_name
+        self.printStatment(
+            f"{COLORS[captured_name.upper()]}{captured_name} was captured!{COLORS['ENDC']}")
+
+    def handle_promotion(self, dest_cord):
+        promoted_queen = Queen(self.player1.team)
+        promoted_queen.setPos(dest_cord[0], dest_cord[1])
+        self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
+        self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
+
+    def check_for_win(self):
+        self.display()
+        winning_player = 'Red' if self.player1 else 'Blue'
+        self.printStatment(f"{GREEN}Player {winning_player} wins! The king has been captured.{COLORS['ENDC']}")
+        self.result["win"] = True
+        choice = input(
+            "Do you want to play again? (yes/no): ").strip().lower()
+        if choice == 'yes':
+            self.reset()
+        else:
+            self.quit()
+
 
     def is_in_check(self, team):
-        # Get the king's position based on the team.
+        # Get the king's position based on the team..
         king_pos = self.BlueKing.position if team == 'BLUE' else self.RedKing.position
         # print(f"Checking for team {team}. King's position: {king_pos}") ## FOR DEBUGGING PURPOSES
 
@@ -257,11 +264,22 @@ class ChessBoard:
                 piece = self.board[i][j]
                 if piece and piece.team != team:
                     if piece.validateMove(tuple(king_pos), self.board):
+                        atkr = convert_to_human_readable((i,j))
+                        dfndr = convert_to_human_readable(king_pos)
                         attacker_name = piece.name
                         self.printStatment(
-                            f"{COLORS['YELLOW_BACKGROUND']}{attacker_name} at position {(i, j)} can attack the king at {king_pos}{COLORS['ENDC']}")
+                            f"{COLORS['YELLOW_BACKGROUND']}{attacker_name} at position {(atkr)} can attack the king at {dfndr}{COLORS['ENDC']}")
                         return True
         return False
+    
+    def print_readable_format(self, piece_name, piece_position, target_name, target_position):
+        # Convert coordinates to human-readable format
+        piece_coord = self.convert_to_human_readable(piece_position)
+        target_coord = self.convert_to_human_readable(target_position)
+
+        # Construct and print the message
+        message = f"{piece_name} at position {piece_coord} can attack the {target_name} at {target_coord}"
+        self.printStatment(f"{COLORS['BRIGHT_RED']}{message}{COLORS['ENDC']}")
 
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
@@ -300,6 +318,8 @@ class ChessBoard:
         self.result['check'] = False
         self.result['capture'] = None
         self.result['win'] = False
+        
+    
         
 if __name__ == "__main__":
     print("Welcome to Chess!")

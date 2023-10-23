@@ -267,3 +267,5 @@ def print_valid_moves(piece_name, position, moves):
     human_readable_position = convert_to_human_readable(position)
     human_readable_moves = [convert_to_human_readable(move) for move in moves]
     print(f"Valid moves for {piece_name} at {human_readable_position}: {', '.join(human_readable_moves)}")
+    
+
