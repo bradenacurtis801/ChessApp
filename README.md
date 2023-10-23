@@ -27,8 +27,8 @@ RUNNING THE PROGRAM
 
 GAMEPLAY INSTRUCTIONS
 1) The game is played in the console, and the chessboard is an 8x8 board and displayed after each move.
-2) White is the upper case pieces located at the bottom of the board and black is lower case located at the top of the board. White will make the first move.
-3) The board is labeled as follows: From where WHITE sits, the ranks (rows) are
+2) RED is the lower case pieces located at the bottom of the board and BLUE is upper case located at the top of the board. Red will make the first move.
+3) The board is labeled as follows: From where RED sits, the ranks (rows) are
 labeled 1 through 8 (bottom to top). The files (columns) are labeled A through H
 (left to right).
 4) Players take turns to make their moves. The format for entering a move is source-destination, e.g., A2-A4.
