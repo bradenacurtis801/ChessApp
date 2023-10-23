@@ -2,11 +2,14 @@ from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
 from chessPieceADT import ChessPiece
 from errors import ERROR_CODES
 import requirements
+from colorama import init
 import sys
 import os
 import pickle
 import re
 import json
+
+init(autoreset=True)
 
 BLUE = "BLUE"  # White is now Blue
 RED = "RED"  # Black is now Red
@@ -85,8 +88,8 @@ class ChessBoard:
         # }
         
         uniDict = {
-            BLUE: {Pawn: "P", Rook: "R", Knight: "K", Bishop: "B", King: "K", Queen: "Q"},
-            RED: {Pawn: "p", Rook: "r", Knight: "k",
+            BLUE: {Pawn: "P", Rook: "R", Knight: "N", Bishop: "B", King: "K", Queen: "Q"},
+            RED: {Pawn: "p", Rook: "r", Knight: "n",
                   Bishop: "b", King: "k", Queen: "q"}
         }
         """Display the current state of the chessboard."""
