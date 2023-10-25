@@ -1,184 +1,296 @@
-from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight
+from chestPieces import Rook, Pawn, King, Bishop, Queen, Knight, convert_to_human_readable
 from chessPieceADT import ChessPiece
-import sys,os
+from errors import ERROR_CODES
+import requirements
+from colorama import init
+import sys
+import os
 import pickle
 import re
+import json
 
-class ChessBoard:
-    #Used to print piece captured
-    piece_names = {
-    'k': 'King',
-    'q': 'Queen',
-    'r': 'Rook',
-    'b': 'Bishop',
-    'n': 'Knight',
-    'p': 'Pawn'
+init(autoreset=True)
+
+BLUE = "BLUE"  # White is now Blue
+RED = "RED"  # Black is now Red
+GREEN = '\033[92m'
+
+COLORS = {
+    'BLUE': '\033[94m',  # Blue color
+    'RED': '\033[91m',  # Red color
+    'YELLOW': '\033[93m',  # Yellow color
+    'YELLOW_BACKGROUND': '\033[36m',  # Yellow color
+    'BRIGHT_RED': '\033[1;91m',  # Bright Red color
+    'PAWN': '\033[93m',       # Yellow color
+    'KNIGHT': '\033[94m',     # Blue color
+    'BISHOP': '\033[94m',     # Blue color
+    'ROOK': '\033[91m',       # Red color
+    'QUEEN': '\033[91m',      # Red color
+    'KING': '\033[1;91m',     # Bright Red color
+    'ENDC': '\033[0m'     # Reset to default
 }
 
+class ChessBoard:
+    # Used to print piece captured
+    piece_names = {
+        'k': 'King',
+        'q': 'Queen',
+        'r': 'Rook',
+        'b': 'Bishop',
+        'n': 'Knight',
+        'p': 'Pawn'
+    }
+
     """Represents a chessboard and handles game operations such as moves and display."""
+
     def __init__(self):
         """Initialize the chessboard with the default setup."""
-        # Standard starting positions for a chess game.
-        self.player1 = True
+        self.BlueKing = King("BLUE")
+        self.RedKing = King("RED")
+        self.player1 = True  # Red team starts first
+        self.result = {}
+        self.resp = None
+        self.game_history = []
+        self.init_result()
+
+        # Functions to initialize rows
+        def init_pawns(team):
+            return [Pawn(team) for _ in range(8)]
+
+        def init_majors(team):
+            return [Rook(team), Knight(team), Bishop(team), Queen(team),
+                    self.BlueKing if team == "BLUE" else self.RedKing,
+                    Bishop(team), Knight(team), Rook(team)]
+        # Setting up the board
         self.board = [
-            [Rook(0), Knight(0), Bishop(0), Queen(0), King(0), Bishop(0), Knight(0), Rook(0)],
-            [Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0), Pawn(0)],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1), Pawn(1)],
-            [Rook(1), Knight(1), Bishop(1), Queen(1), King(1), Bishop(1), Knight(1), Rook(1)]
+            init_majors("RED"),
+            init_pawns("RED"),
+            [None] * 8,
+            [None] * 8,
+            [None] * 8,
+            [None] * 8,
+            init_pawns("BLUE"),
+            init_majors("BLUE")
         ]
+
         # Setting the initial positions of the pieces
         for row in range(8):
-             for col in range(8):
-                if self.board[row][col]:
-                    self.board[row][col].position = (row, col)
-                    
-                    
-        self.display()
+            for col in range(8):
+                piece = self.board[row][col]
+                if piece:
+                    piece.position = (row, col)
 
     def display(self):
+        # uniDict = {
+        #     BLUE: {Pawn: "♙", Rook: "♖", Knight: "♘", Bishop: "♗", King: "♔", Queen: "♕"},
+        #     RED: {Pawn: "♟", Rook: "♜", Knight: "♞",
+        #           Bishop: "♝", King: "♚", Queen: "♛"}
+        # }
+        
+        uniDict = {
+            BLUE: {Pawn: "P", Rook: "R", Knight: "N", Bishop: "B", King: "K", Queen: "Q"},
+            RED: {Pawn: "p", Rook: "r", Knight: "n",
+                  Bishop: "b", King: "k", Queen: "q"}
+        }
         """Display the current state of the chessboard."""
-        for i, row in enumerate(self.board, start=1):
+        for i, row in enumerate(reversed(self.board), start=1):
             display_row = []
             for piece in row:
-                display_row.append(piece.name if piece else ' ')
+                if piece:
+                    color = COLORS[piece.team]
+                    symbol = uniDict[piece.team][type(piece)]
+                    display_row.append(color + symbol + COLORS['ENDC'])
+                else:
+                    display_row.append(' ')
             print(f"{9-i} | " + ' | '.join(display_row) + ' |')
             print("---------------------------------")
         print("    A   B   C   D   E   F   G   H")
-        
+
     def validateInput(self, move):
-        """
-    Validates the input move string to ensure it matches the pattern of a valid chess move.
-    
-    A valid move is of the format: 'A1-A2' where 'A1' and 'A2' are coordinates on the chessboard.
-    The function allows for case-insensitive input and optional spaces around the hyphen.
-    
-    Args:
-        move (str): The move string to be validated.
-    
-    Returns:
-        MatchObject: Returns a match object if the move is valid, otherwise returns None.
-    """
         return re.match(r'^[A-Ha-h][1-8]\s*-\s*[A-Ha-h][1-8]$', move, re.I)
 
-            
     def run(self):
         """Main game loop, handles input from the players and game progression."""
+        self.display()
         while True:
             if self.player1:
-                player = 'White'
+                player = 'Red'
             else:
-                player = 'Black'
-            resp = input(f'{player}\'s move:')
+                player = 'Blue'
+            self.resp = input(f'{player}\'s move:')
 
-            if resp == "quit":
+            if self.resp == "quit":
                 self.quit()
-            elif resp == "save":
-                self.save()
-            elif self.validateInput(resp):
-
-                if self.handleMove(resp):  # Only toggle player if handleMove returns True
+            elif self.validateInput(self.resp):
+                if self.handleMove(self.resp):
                     self.display()
-                    self.player1 = not self.player1 # This changes the player move after the current player makes a move
             else:
-                print("Invalid input. Please provide a move in the format 'E2 – E4'.")
-            
+                # print("Invalid input. Please provide a move in the format 'E2 – E4'.")
+                self.printStatment(ERROR_CODES[100])
+
+    def printStatment(self, msg):
+        """Print the contents of the self.result dictionary."""
+        print(msg)
+        self.result['move'] = self.resp
+        self.result['message'].append(msg)
+
+    def switch_player(self):
+        """Switch the active player."""
+        self.player1 = not self.player1
+
     def handleMove(self, move):
         """Parse the move input and handles the move on the board."""
+        self.init_result()
+        if not self.resp:
+            self.resp = move
+
         source, destination = [x.strip() for x in move.split('-')]
         source_coord = self.convert_to_coord(source)
         destination_coord = self.convert_to_coord(destination)
-        
-        # TODO: Use the coordinates to move the piece from source to destination in self.board
-        # ...
-        if self.isValidMove(source_coord,destination_coord):
+
+        if self.isValidMove(source_coord, destination_coord):
             self.movePiece(source_coord, destination_coord)
+            self.switch_player()
+            opponent_team = 'RED' if self.player1 else 'BLUE'
+            if self.is_in_check(opponent_team):
+                self.result[f"{opponent_team}_KingCheck"] = True
+                self.printStatment(
+                    f"{COLORS['BRIGHT_RED']}CHECK! IT'S {opponent_team.upper()}'S TURN!{COLORS['ENDC']}")
+            self.result['status'] = True
+            self.game_history.append({
+            "move": move,
+        })
             return True
         else:
-            print("Move was invalid, try again.")
+            self.printStatment(ERROR_CODES[101])
+            self.result['status'] = False
             return False
-            #self.player1 = not self.player1 #prevents current player from changing
-            #self.run()
-        
-        
-    def isValidMove(self,src_cord,dest_cord):
+
+    def message_data(move, message):
+        return {
+            'move': move,
+            'message': message
+        }
+
+    def isValidMove(self, src_cord, dest_cord):
         """Check if the move from src_cord to dest_cord is valid according to chess rules."""
- 
+
         srcObj = self.board[src_cord[0]][src_cord[1]]
         destObj = self.board[dest_cord[0]][dest_cord[1]]
 
-         # Check if there's a piece at the source coordinate
+        # Check if there's a piece at the source coordinate
         if not srcObj:
-            print("There's no piece at the source coordinate!")
+            self.printStatment(ERROR_CODES[102])
             return False
 
         # Check if the piece being moved belongs to the current player
-        if self.player1 and srcObj.name.isupper():
+        if self.player1 and srcObj.team == RED:
             pass
-        elif not self.player1 and srcObj.name.islower():
+        elif not self.player1 and srcObj.team == BLUE:
             pass
         else:
-            print("You can only move your own pieces!")
+            self.printStatment(ERROR_CODES[103])
             return False
-        
+
         # Check if the destination has a piece of the same player to stop from capturing players own piece
         if destObj:
-            if self.player1 and destObj.name.isupper():
-                print("You cannot capture your own piece!")
+            if self.player1 and destObj.team == RED:
+                self.printStatment(ERROR_CODES[104])
                 return False
-            elif not self.player1 and destObj.name.islower():
-                print("You cannot capture your own piece!")
+            elif not self.player1 and destObj.team == BLUE:
+                self.printStatment(ERROR_CODES[104])
                 return False
 
-
-        #If there's a piece at the source coordinat, call its isValidMove
+        # If there's a piece at the source coordinate, call its isValidMove
         if srcObj:
             return srcObj.validateMove(dest_cord, self.board)
         return False
-        #if srcObj:
-            #pass
-    
+
     def movePiece(self, src_cord, dest_cord):
         """Move the piece from the source coordinates to the destination coordinates."""
-        piece_to_move: ChessPiece = self.board[src_cord[0]][src_cord[1]]
         captured_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
         
-        # Update the board
-        self.board[dest_cord[0]][dest_cord[1]] = piece_to_move
-        self.board[src_cord[0]][src_cord[1]] = None
+        self.update_board_state(src_cord, dest_cord)
         
-        # Update the position attribute of the moved piece 
-        piece_to_move.setPos(dest_cord[0], dest_cord[1])
-      
-        # If there's a piece at the destination square, it's captured. 
         if captured_piece:
-            # Use the dictionary to get the full name of the captured piece.
-            captured_name = ChessBoard.piece_names[captured_piece.name.lower()]
-            print(f"{captured_name} was captured!")
+            self.handle_capture(captured_piece)
 
-            # Check if the captured piece is a king
-            if captured_piece.name.lower() == 'k':
-                winning_player = 1 if self.player1 else 2
-                print(f"Player {winning_player} wins! The king has been captured.")
-                # Here you can either exit the game or offer to restart
-                choice = input("Do you want to play again? (yes/no): ").strip().lower()
-                if choice == 'yes':
-                    self.reset()
-                else:
-                    self.quit()
+        moving_piece: ChessPiece = self.board[dest_cord[0]][dest_cord[1]]
+        if isinstance(moving_piece, Pawn) and moving_piece.isPromoted:
+            self.handle_promotion(dest_cord)
+
+        if captured_piece and captured_piece.name.lower() == 'king':
+            self.check_for_win()
+
+    def update_board_state(self, src, dest):
+        piece_to_move: ChessPiece = self.board[src[0]][src[1]]
+        self.board[dest[0]][dest[1]] = piece_to_move
+        self.board[src[0]][src[1]] = None
+        piece_to_move.setPos(dest[0], dest[1])
+
+    def handle_capture(self, captured_piece):
+        captured_name = captured_piece.name
+        self.result['capture'] = captured_name
+        self.printStatment(
+            f"{COLORS[captured_name.upper()]}{captured_name} was captured!{COLORS['ENDC']}")
+
+    def handle_promotion(self, dest_cord):
+        promoted_queen = Queen(self.player1.team)
+        promoted_queen.setPos(dest_cord[0], dest_cord[1])
+        self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
+        self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
+
+    def check_for_win(self):
+        self.display()
+        winning_player = 'Red' if self.player1 else 'Blue'
+        self.printStatment(f"{GREEN}Player {winning_player} wins! The king has been captured.{COLORS['ENDC']}")
+        self.result["win"] = True
+        choice = input(
+            "Do you want to play again? (yes/no): ").strip().lower()
+        if choice == 'yes':
+            self.reset()
+        else:
+            self.quit()
+
+
+    def is_in_check(self, team):
+        # Get the king's position based on the team..
+        king_pos = self.BlueKing.position if team == 'BLUE' else self.RedKing.position
+        # print(f"Checking for team {team}. King's position: {king_pos}") ## FOR DEBUGGING PURPOSES
+
+        # Check if any opposing pieces can attack the king.
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j]
+                if piece and piece.team != team:
+                    if piece.validateMove(tuple(king_pos), self.board):
+                        atkr = convert_to_human_readable((i,j))
+                        dfndr = convert_to_human_readable(king_pos)
+                        attacker_name = piece.name
+                        self.printStatment(
+                            f"{COLORS['YELLOW_BACKGROUND']}{attacker_name} at position {(atkr)} can attack the king at {dfndr}{COLORS['ENDC']}")
+                        return True
+        return False
     
+    def print_readable_format(self, piece_name, piece_position, target_name, target_position):
+        # Convert coordinates to human-readable format
+        piece_coord = self.convert_to_human_readable(piece_position)
+        target_coord = self.convert_to_human_readable(target_position)
+
+        # Construct and print the message
+        message = f"{piece_name} at position {piece_coord} can attack the {target_name} at {target_coord}"
+        self.printStatment(f"{COLORS['BRIGHT_RED']}{message}{COLORS['ENDC']}")
+
     def convert_to_coord(self, notation):
         """Convert the user-friendly notation (like 'E2') to board coordinates (like (1, 4))."""
-        col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
+        col_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3,
+                   'E': 4, 'F': 5, 'G': 6, 'H': 7}
         col = col_map[notation[0].upper()]
-        row = 8 - int(notation[1])  # 8 - row number to get 0-indexed row
-         #type is a tuple, row is flipped because the board is flipped.
+        # Adjusted to match the new board orientation
+        row = int(notation[1]) - 1
+        # type is a tuple, row is flipped because the board is flipped.
         return (row, col)
-                
-            
+
     def quit(self):
         """Quit the game, clearing the console and printing an exit message."""
         # Clear the console
@@ -187,47 +299,29 @@ class ChessBoard:
         print("Thanks for playing! Goodbye!")
         # Exit the program
         sys.exit()
-        
-    def save(self):
-        """Save the current game state to a file for later continuation."""
-        # implemented but needs to be tested
-        print("Optional TODO: this saves the same state")
-        with open("chess_save.dat", "wb") as f:
-            pickle.dump(self, f)
-        print("Game has been saved!")
-        
-    @classmethod
-    def load(cls):
-        """Load a previously saved game state from a file."""
-        # implemented but needs to be tested
-        try:
-            with open("chess_save.dat", "rb") as f:
-                return pickle.load(f)
-        except FileNotFoundError:
-            print("No saved game found.")
-            return None
 
-    
     def reset(self):
         """Reset the game state to the default starting position and restarts the game."""
         self.__init__()
         self.run()
 
+    def clear_vscode_console(self):
+        """
+        Clear the console in VSCode's integrated terminal.
+        """
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-            
-
+    def init_result(self):
+        self.result['move'] = None
+        self.result['status'] = False
+        self.result['message'] = []
+        self.result['check'] = False
+        self.result['capture'] = None
+        self.result['win'] = False
+        
+    
+        
 if __name__ == "__main__":
     print("Welcome to Chess!")
-    choice = input("Do you want to load a saved game? (yes/no): ").strip().lower()
-
-    if choice == 'yes':
-        game = ChessBoard.load()
-        if game:
-            game.run()
-        else:
-            print("Starting a new game.")
-            game = ChessBoard()
-            game.run()
-    else:
-        game = ChessBoard()
-        game.run()
+    game = ChessBoard()
+    game.run()

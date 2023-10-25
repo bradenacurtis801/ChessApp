@@ -1,0 +1,89 @@
+Chess Program Overview
+
+Module Imports:
+
+Various chess pieces (Rook, Pawn, King, Bishop, Queen, Knight) are imported from a module named chestPieces.
+Standard Python libraries (sys, os, pickle, re) are also imported for various functionalities.
+ChessBoard Class:
+
+Represents the game state and operations on the chessboard.
+Attributes:
+
+board: A 2D list representing the chessboard, initialized with standard chess pieces at their respective starting positions.
+Methods:
+
+__init__(self): Initializes the game board to the standard starting position.
+display(self): Outputs the current state of the chessboard to the console.
+validateInput(self, move): Validates a player's move input to ensure it adheres to the required format (e.g., 'A1-A2').
+run(self): Main game loop where players are prompted to make moves, save, or quit. It also handles player turns.
+handleMove(self, move): Processes a player's move, parsing input and updating the board state.
+isValidMove(self, src_cord, dest_cord): Checks if a move from a source coordinate to a destination coordinate is valid according to the rules of chess (currently a placeholder).
+convert_to_coord(self, notation): Converts user-friendly board notation (e.g., 'E2') into board coordinates (e.g., (1, 4)).
+quit(self): Exits the game and clears the console.
+save(self): Attempts to save the current game state to a file for later continuation using the pickle library.
+load(cls): Class method that attempts to load a previously saved game state from a file.
+reset(self): Resets the game to its initial state and restarts the game loop.
+Main Execution:
+
+When the script is run directly, it displays a welcome message.
+It prompts the player to load a previously saved game or start a new one.
+Depending on the player's choice, it either loads a game or initializes a new board and enters the game loop.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+High-Level TODOs for Chess Program Completion
+
+Piece Movement:
+
+Implement the individual movement rules for each chess piece in their respective classes or within the isValidMove method.
+Ensure captures, pawn promotions, and special moves like castling and en passant are handled.
+Check and Checkmate Detection:
+
+Implement a function to determine if a king is in check.
+Extend this to detect checkmate situations.
+Stalemate and Draw Scenarios:
+
+Handle stalemate scenarios (when a player has no legal moves left and their king is not in check).
+Implement the fifty-move rule and threefold repetition for draw conditions.
+Enhanced User Interface:
+
+Perhaps consider improving the display, making it more visually appealing or even migrating to a graphical user interface (GUI) using a library like pygame or tkinter.
+Error Handling:
+
+Robustly handle potential errors: incorrect move formats, moves that place one's own king in check, etc.
+Provide user feedback for these errors to guide the player.
+Enhanced Saving/Loading Mechanism:
+
+Enhance the save/load functionality to include meta-data like player names, game duration, etc.
+Implement an auto-save feature after every move.
+Player Profiles:
+
+Allow players to create profiles with statistics (e.g., games won, lost, drawn).
+Optionally, implement a rating system for players.
+Game History and Move Undo:
+
+Implement a move history system, allowing players to review past moves.
+Optionally, allow players to undo moves or even replay a game from a particular move.
+AI Opponent:
+
+Develop a simple AI opponent for single-player mode using basic algorithms or more advanced methods like the minimax algorithm with alpha-beta pruning.
+Testing and Refactoring:
+
+Continually test each implemented feature to ensure correct functionality.
+As the codebase grows, consider refactoring for clarity, maintainability, and efficiency.
+Ensure saved game compatibility across different versions of the game.
+Documentation and Tutorials:
+Create comprehensive documentation for your code.
+Develop user-friendly tutorials or guides for first-time players.
+Expansion and Features:
+Consider implementing variants of chess (like speed chess, or thematic chess variants).
+Add sounds, music, or other multimedia enhancements for a richer experience.
+Optimization:
+As your game grows, monitor performance and make necessary optimizations.
+Consider using profiling tools to pinpoint any bottlenecks in the code.
+Release and Distribution:
+Once you're satisfied with the game's stability and feature set, package it for release.
+Consider distribution methods, be it as a downloadable executable, a web-based game, or even as a mobile app.

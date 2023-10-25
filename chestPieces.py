@@ -2,67 +2,89 @@ from chessPieceADT import ChessPiece
 
 class Pawn(ChessPiece):
     def __init__(self, team):
-        self.name = 'p'
-        if team == 1: self.name = self.name.upper()
-        self.position = [None, None]
+        self.name = 'Pawn'
+        self.team = team
+        self.position = []
         self.first_move = True
+        self.isPromoted = False
+        
+    def getPos(self):
+        return self.position
+
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
+        
+        if self.first_move:
+            self.first_move = False
+
+        # Check if the pawn has reached the end of the board for promotion.
+        if self.team == 'RED' and row == 7:
+            self.isPromoted = True
+        elif self.team == 'BLUE' and row == 0:
+            self.isPromoted = True
 
     def validateMove(self, dest_cord, board):
-        # generate possible moves
+        moves = self.generateMoves(board)
+        if dest_cord in moves:
+            # print(f"{self.name} at position {convert_to_human_readable(self.position)} can move to {convert_to_human_readable(dest_cord)}") ## FOR DEBUGGING 
+            return True
+        return False
+
+    def generateMoves(self, board):
         row = self.position[0]
         col = self.position[1]
         moves = []
 
-        if self.name.isupper():  # Team 1 (White)
+        if self.team == 'BLUE':  # Team 1 (RED)
             # Standard move forward
-            if board[row - 1][col] == None:
+            if self.is_valid_position(row-1, col) and board[row - 1][col] == None:
                 moves.append((row - 1, col))
             # First move: can move two spaces forward
-            if self.first_move and board[row - 2][col] == None:
+            if self.first_move and board[row - 1][col] == None and board[row - 2][col] == None:
                 moves.append((row - 2, col))
             # Capture diagonally left
-            if col > 0 and board[row - 1][col - 1] and board[row - 1][col - 1].name.islower():
+            if self.is_valid_position(row-1, col-1) and board[row - 1][col - 1] and board[row - 1][col - 1].team == 'RED':
                 moves.append((row - 1, col - 1))
             # Capture diagonally right
-            if col < 7 and board[row - 1][col + 1] and board[row - 1][col + 1].name.islower():
+            if self.is_valid_position(row-1, col+1) and board[row - 1][col + 1] and board[row - 1][col + 1].team == 'RED':
                 moves.append((row - 1, col + 1))
-
-        else:  # Team 2 (Black)
+        else:  # Team 2 (RED)
             # Standard move forward
-            if board[row + 1][col] == None:
+            if self.is_valid_position(row+1, col) and board[row + 1][col] == None:
                 moves.append((row + 1, col))
             # First move: can move two spaces forward
-            if self.first_move and board[row + 2][col] == None:
+            if self.first_move and board[row + 1][col] == None and board[row + 2][col] == None:
                 moves.append((row + 2, col))
             # Capture diagonally left
-            if col > 0 and board[row + 1][col - 1] and board[row + 1][col - 1].name.isupper():
+            if self.is_valid_position(row+1, col-1) and board[row + 1][col - 1] and board[row + 1][col - 1].team == 'BLUE':
                 moves.append((row + 1, col - 1))
             # Capture diagonally right
-            if col < 7 and board[row + 1][col + 1] and board[row + 1][col + 1].name.isupper():
+            if self.is_valid_position(row+1, col+1) and board[row + 1][col + 1] and board[row + 1][col + 1].team == 'BLUE':
                 moves.append((row + 1, col + 1))
 
-        if dest_cord in moves:
-            self.first_move = False  # After a move, set first_move to False
-            return True
-        return False
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
+        return moves
 
+    def is_valid_position(self, row, col):
+        return 0 <= row < 8 and 0 <= col < 8
+
+
+        
 class Rook(ChessPiece):
     def __init__(self, team):
-        self.name = 'r'
+        self.name = 'Rook'
         self.team = team
-        if self.team == 1: self.name = self.name.upper()
         self.position = []
 
-    def getPos(self):
-        return self.position
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
 
-    def setPos(self, newPos):
-        self.position = newPos
+    def validateMove(self, dest_cord, board) -> bool:
+        moves = self.generateMoves(board)
+        return dest_cord in moves
 
-    def validateMove(self, dest_cord, board):
-        print("rook validatemove entered!")
+    def generateMoves(self, board):
         row, col = self.position
-        dest_row, dest_col = dest_cord
         moves = []
 
         # Check horizontal and vertical directions
@@ -80,152 +102,170 @@ class Rook(ChessPiece):
                     break  # Stop if there's a friendly piece
                 r += dr
                 c += dc
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
+        return moves
 
-        print(dest_cord)
-        return dest_cord in moves
+    
 
 
 class Knight(ChessPiece):
     def __init__(self, team):
-        self.name = 'n'
+        self.name = 'Knight'
         self.team = team
-        if self.team == 1: self.name = self.name.upper()
         self.position = []
 
-    def getPos(self):
-        return self.position
-
-    def setPos(self, newPos):
-        self.position = newPos
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
 
     def validateMove(self, dest_cord, board):
-        print("knight validatemove entered!")
+        moves = self.generateMoves(board)
+        return dest_cord in moves
+
+    def generateMoves(self, board):
         row, col = self.position
         moves = []
-        # Define the possible moves for a knight
+        
+        # Define the possible relative moves for a knight
         knight_moves = [
-            (row + 2, col + 1), (row + 2, col - 1),
-            (row - 2, col + 1), (row - 2, col - 1),
-            (row + 1, col + 2), (row + 1, col - 2),
-            (row - 1, col + 2), (row - 1, col - 2)
+            (2, 1), (2, -1), (-2, 1), (-2, -1), 
+            (1, 2), (1, -2), (-1, 2), (-1, -2)
         ]
-        # Check if the destination is within the board and not occupied by a friendly piece
+        
         for move in knight_moves:
-            r, c = move
+            r, c = row + move[0], col + move[1]
             if 0 <= r < 8 and 0 <= c < 8:
                 srcObj = board[r][c]
                 if srcObj is None or srcObj.team != self.team:
-                    moves.append(move)
-        print(dest_cord)
-        return dest_cord in moves
+                    moves.append((r, c))
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
+        return moves
+
+
 
 
 class Queen(ChessPiece):
-    def __init__(self,team):
-        self.name = 'q'
-        if team == 1: self.name = self.name.upper()
-        self.move_vector = 2*[]
-        self.position = 2*[]
-    
+    def __init__(self, team):
+        self.name = 'Queen'
+        self.team = team
+        self.position = []
 
-    def validateMove(self, dest: tuple, board) -> bool:
-        dest_row, dest_col = dest
-        # Check for horizontal, vertical, or diagonal movement
-        row_diff = abs(dest_row - self.position[0])
-        col_diff = abs(dest_col - self.position[1])
-        
-        # Check for horizontal movement
-        if self.position[0] == dest_row:
-            return self.is_path_clear_horizontal(dest_col, board)
-        # Check for vertical movement
-        elif self.position[1] == dest_col:
-            return self.is_path_clear_vertical(dest_row , board)
-        # Check for diagonal movement
-        elif row_diff == col_diff:
-            return self.is_path_clear_diagonal(dest_row, dest_col, board)
-        return False
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
 
-    def is_path_clear_horizontal(self, dest_col, board):
-        step = 1 if dest_col > self.position[1] else -1
-        for col in range(self.position[1] + step, dest_col, step):
-            if board[self.position[0]][col]:
-                return False
-        return True
+    def validateMove(self, dest_cord, board):
+        moves = self.generateMoves(board)
+        return dest_cord in moves
 
-    def is_path_clear_vertical(self, dest_row, board):
-        step = 1 if dest_row > self.position[0] else -1
-        for row in range(self.position[0] + step, dest_row, step):
-            if board[row][self.position[1]]:
-                return False
-        return True
+    def generateMoves(self, board):
+        moves = []
 
-    def is_path_clear_diagonal(self, dest_row, dest_col, board):
-        row_step = 1 if dest_row > self.position[0] else -1
-        col_step = 1 if dest_col > self.position[1] else -1
-        row, col = self.position[0] + row_step, self.position[1] + col_step
-        while row != dest_row and col != dest_col:
-            if board[row][col]:
-                return False
-            row += row_step
-            col += col_step
-        return True
+        # Horizontal and Vertical moves
+        # Horizontal and Vertical moves
+        for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            row, col = self.position[0] + direction[0], self.position[1] + direction[1]
+            while 0 <= row < 8 and 0 <= col < 8:
+                if board[row][col]:
+                    if board[row][col].team != self.team:
+                        moves.append((row, col))
+                    break
+                else:
+                    moves.append((row, col))
+                row += direction[0]
+                col += direction[1]
+                
+        # Diagonal moves
+        for i in [-1, 1]:
+            for j in [-1, 1]:
+                row, col = self.position[0] + i, self.position[1] + j
+                while 0 <= row < 8 and 0 <= col < 8:
+                    if board[row][col]:
+                        if board[row][col].team != self.team:
+                            moves.append((row, col))
+                        break
+                    else:
+                        moves.append((row, col))
+                    row += i
+                    col += j
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
+        return moves
+
+
 
 
 class King(ChessPiece):
     def __init__(self, team):
-        self.name = 'k'
-        if team == 1: self.name = self.name.upper()
+        self.name = 'King'
+        self.team = team
         self.position = []
-    
-    #a King can move one square in any direction
-    def validateMove(self, dest_cord, board) -> bool:
-        dest_row, dest_col = dest_cord
-        # Generate possible moves
-        row = self.position[0]
-        col = self.position[1]
+
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
+
+    def validateMove(self, dest_cord, board):
+        moves = self.generateMoves(board)
+        return dest_cord in moves
+
+    def generateMoves(self, board):
         moves = []
-        # Check all squares around king (including the king)
+        row, col = self.position
+        # Check all squares around the king
         for i in range(-1, 2):
             for j in range(-1, 2):
-                try:
-                    srcObj = board[row + i][col + j]
-                    if srcObj == None:
-                        moves.append((row + i, col + j))
-                    else:
-                        if (self.name.isupper() and srcObj.name.islower()) or (self.name.islower() and srcObj.name.isupper()):
-                            moves.append((row + i, col + j))
-                except IndexError:
-                    pass
-        # Check if the destination is one of the valid moves
-        if dest_cord in moves:
-            return True
-        return False
+                new_row = row + i
+                new_col = col + j
+                # Ensure it's a valid position on the board
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    srcObj = board[new_row][new_col]
+                    if srcObj is None:
+                        moves.append((new_row, new_col))
+                    elif srcObj.team != self.team:
+                        moves.append((new_row, new_col))
+        return moves
+
 
 class Bishop(ChessPiece):
-    def __init__(self,team):
-        self.name = 'b'
-        if team == 1: self.name = self.name.upper()
-        self.move_vector = 2*[]
-        self.position = 2*[]
+    def __init__(self, team):
+        self.name = 'Bishop'
+        self.team = team
+        self.position = []
 
-    def validateMove(self, dest: tuple, board) -> bool:
-        dest_row, dest_col = dest
-        # Check for diagonal movement
-        row_diff = abs(dest_row - self.position[0])
-        col_diff = abs(dest_col - self.position[1])
-        
-        if row_diff == col_diff:
-            return self.is_path_clear_diagonal(dest_row, dest_col, board)
-        return False
+    def setPos(self, row: int, col: int):
+        self.position = [row, col]
 
-    def is_path_clear_diagonal(self, dest_row, dest_col, board):
-        # Same as the Queen's is_path_clear_diagonal method
-        row_step = 1 if dest_row > self.position[0] else -1
-        col_step = 1 if dest_col > self.position[1] else -1
-        row, col = self.position[0] + row_step, self.position[1] + col_step
-        while row != dest_row and col != dest_col:
-            if board[row][col]:
-                return False
-            row += row_step
-            col += col_step
-        return True
+    def validateMove(self, dest_cord, board):
+        moves = self.generateMoves(board)
+        return dest_cord in moves
+
+    def generateMoves(self, board):
+        moves = []
+        for i in [-1, 1]:
+            for j in [-1, 1]:
+                row, col = self.position[0] + i, self.position[1] + j
+                while 0 <= row < 8 and 0 <= col < 8:
+                    if board[row][col]:
+                        if board[row][col].team != self.team:
+                            moves.append((row, col))
+                        break
+                    else:
+                        moves.append((row, col))
+                    row += i
+                    col += j
+        return moves
+
+
+
+#### TEMP FOR DEBUGGING USE#####
+def convert_to_human_readable(coord):
+    row_to_num = {0: '1', 1: '2', 2: '3', 3: '4', 4: '5', 5: '6', 6: '7', 7: '8'}
+    col_to_letter = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H'}
+    
+    row, col = coord
+    return col_to_letter[col] + row_to_num[row]
+
+
+def print_valid_moves(piece_name, position, moves):
+    human_readable_position = convert_to_human_readable(position)
+    human_readable_moves = [convert_to_human_readable(move) for move in moves]
+    print(f"Valid moves for {piece_name} at {human_readable_position}: {', '.join(human_readable_moves)}")
+    
+
