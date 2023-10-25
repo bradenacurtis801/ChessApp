@@ -3,3 +3,4 @@
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/misc.xml
 *.xml
+__pycache__/chestPieces.cpython-311.pyc
