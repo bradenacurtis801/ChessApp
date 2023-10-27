@@ -57,7 +57,16 @@ class TestChessPieces(unittest.TestCase):
         #test two squares away
         self.assertFalse(self.king.validateMove((6,6), self.board.board))
 
-        #TODO: test rook, pawn, knight movement     
+    def test_rook_movement(self):
+        self.rook.position = (4, 4)
+        self.board.board[4][4] = self.rook
+        #test vertical and horizontal movement
+        self.assertTrue(self.rook.validateMove((4,6), self.board.board))
+        self.assertTrue(self.rook.validateMove((6, 6), self.board.board))
+        #test diagonal movement
+        self.assertFalse(self.rook.validateMove((7,7), self.board.board))
+
+        #TODO: test pawn, knight movement     
         #TODO: test board boundaries
         #TODO: test capture
         #TODO: test check
