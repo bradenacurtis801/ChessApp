@@ -113,8 +113,8 @@ class Rook(ChessPiece):
 
 class Knight(ChessPiece):
     def __init__(self, team):
-        self.name = 'n'
-        if team == 1: self.name = self.name.upper()
+        self.name = 'Knight'
+        self.team = team
         self.position = [None, None]
 
     def setPos(self, row: int, col: int):
