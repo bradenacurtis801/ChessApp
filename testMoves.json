@@ -1,0 +1,95 @@
+{
+  "games": [
+    {
+      "game_id": 3,
+      "description": "This is suppose to put the red king in check",
+      "status": "passed",
+      "Red_KingCheck": "True",
+      "moves": [
+        {
+          "move": "e2-e4"
+        },
+        {
+          "move": "e7-e5"
+        },
+        {
+          "move": "e1-e2"
+        },
+        {
+          "move": "d8-h4"
+        },
+        {
+          "move": "a2-a4"
+        },
+        {
+          "move": "h4-e4"
+        }
+      ]
+    },
+    {
+      "game_id": 4,
+      "description": "Blue wins game",
+      "status": "passed",
+      "moves": [
+        {
+          "move": "e2-e4"
+        },
+        {
+          "move": "e7-e5"
+        },
+        {
+          "move": "e1-e2"
+        },
+        {
+          "move": "d8-h4"
+        },
+        {
+          "move": "a2-a4"
+        },
+        {
+          "move": "h4-e4"
+        },
+        {
+          "move": "a4-a5"
+        },
+        {
+          "move": "e4-e2"
+        }
+      ]
+    },
+    {
+      "game_id": 5,
+      "description": "Red Pawn promotion",
+      "status": "passed",
+      "moves": [
+        {
+          "move": "A2-A4"
+        },
+        {
+          "move": "B7-B5"
+        },
+        {
+          "move": "A4-B5"
+        },
+        {
+          "move": "A7-A6"
+        },
+        {
+          "move": "B5-A6"
+        },
+        {
+          "move": "C7-C6"
+        },
+        {
+          "move": "A6-A7"
+        },
+        {
+          "move": "C6-C5"
+        },
+        {
+          "move": "A7-B8"
+        }
+      ]
+    }
+  ]
+}
