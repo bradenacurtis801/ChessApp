@@ -69,12 +69,10 @@ class Pawn(ChessPiece):
         return 0 <= row < 8 and 0 <= col < 8
 
 
-        
 class Rook(ChessPiece):
     def __init__(self, team):
         self.name = 'r'
         if team == 1: self.name = self.name.upper()
-        self.position = [None, None]
         self.team = team
         self.position = []
 
@@ -92,8 +90,13 @@ class Rook(ChessPiece):
         # Check horizontal and vertical directions
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         for dr, dc in directions:
-            r, c = row + dr, col + dc
-            while 0 <= r < 8 and 0 <= c < 8:
+            r, c = row, col  # Start from the rook's position
+            while True:
+                r += dr
+                c += dc
+                if not (0 <= r < 8 and 0 <= c < 8):
+                    break  # Exit if out of board bounds
+
                 srcObj = board[r][c]
                 if srcObj is None:
                     moves.append((r, c))
@@ -102,13 +105,8 @@ class Rook(ChessPiece):
                     break  # Stop if there's an opposing piece (capture)
                 else:
                     break  # Stop if there's a friendly piece
-                r += dr
-                c += dc
-        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING 
+        # print_valid_moves(self.name, self.position, moves) ## FOR DEBUGGING
         return moves
-
-    
-
 
 
 class Knight(ChessPiece):
@@ -140,9 +138,10 @@ class Knight(ChessPiece):
             if 0 <= r < 8 and 0 <= c < 8:
                 srcObj = board[r][c]
                 if srcObj is None or srcObj.name.isupper() != self.name.isupper():
-                    moves.append(move)
+                    moves.append((r, c))  # Use the actual position, not just the relative move
 
-        return dest_cord in moves
+        return moves  # <-- This is the correct return statement for this method
+
 
 
 

@@ -240,7 +240,8 @@ class ChessBoard:
             f"{COLORS[captured_name.upper()]}{captured_name} was captured!{COLORS['ENDC']}")
 
     def handle_promotion(self, dest_cord):
-        promoted_queen = Queen(self.player1.team)
+        pawn = self.board[dest_cord[0]][dest_cord[1]]
+        promoted_queen = Queen(pawn.team)
         promoted_queen.setPos(dest_cord[0], dest_cord[1])
         self.board[dest_cord[0]][dest_cord[1]] = promoted_queen
         self.printStatment(f"{COLORS['PAWN']}Pawn has been promoted to Queen!{COLORS['ENDC']}")
